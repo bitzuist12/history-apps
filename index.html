@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>History Stories for Kids</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&family=Crimson+Text:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-warm: #fdf6e3;
+      --bg-dark: #2c1810;
+      --ink: #2c1810;
+      --ink-light: #6b5744;
+      --gold: #c89b3c;
+      --gold-light: #f0d68c;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg-warm);
+      font-family: 'Fredoka', sans-serif;
+      color: var(--ink);
+    }
+
+    /* ---- HEADER ---- */
+    .header {
+      background: var(--bg-dark);
+      padding: 48px 24px 56px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: var(--bg-warm);
+      border-radius: 50% 50% 0 0;
+    }
+
+    .header-icon {
+      font-size: 56px;
+      margin-bottom: 12px;
+    }
+
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-family: 'Crimson Text', serif;
+      font-style: italic;
+      font-size: 18px;
+      color: #d4b06a;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* ---- BOOKSHELF ---- */
+    .bookshelf {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    .shelf-label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--gold);
+      margin-bottom: 24px;
+      padding-left: 4px;
+    }
+
+    .books-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 28px;
+    }
+
+    /* ---- BOOK CARD ---- */
+    .book-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(44, 24, 16, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .book-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 36px rgba(44, 24, 16, 0.18);
+    }
+
+    .book-card-cover {
+      height: 200px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .book-card-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+
+    .book-card:hover .book-card-cover img {
+      transform: scale(1.05);
+    }
+
+    .book-card-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--gold);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .book-card-body {
+      padding: 20px 22px 24px;
+    }
+
+    .book-card-era {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .book-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--ink);
+      margin-bottom: 8px;
+      line-height: 1.2;
+    }
+
+    .book-card-desc {
+      font-size: 13.5px;
+      color: var(--ink-light);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+
+    .book-card-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--ink-light);
+    }
+
+    .book-card-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ---- COMING SOON CARD ---- */
+    .book-card.coming-soon {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .book-card.coming-soon:hover {
+      transform: none;
+      box-shadow: 0 4px 20px rgba(44, 24, 16, 0.1);
+    }
+
+    .book-card.coming-soon .book-card-cover {
+      background: linear-gradient(135deg, #e8dcc8, #d4c4a8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .coming-soon-icon {
+      font-size: 56px;
+      opacity: 0.4;
+    }
+
+    /* ---- FOOTER ---- */
+    .footer {
+      text-align: center;
+      padding: 32px 24px 40px;
+      font-size: 13px;
+      color: var(--ink-light);
+      border-top: 1px solid #e8dcc8;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .footer-stars {
+      color: var(--gold);
+      letter-spacing: 8px;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .header h1 { font-size: 30px; }
+      .books-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-icon">&#128218;</div>
+    <h1>History Stories for Kids</h1>
+    <p>Beautiful illustrated booklets about the people and events that shaped our world</p>
+  </header>
+
+  <main class="bookshelf">
+    <div class="shelf-label">&#128214; Available Booklets</div>
+    <div class="books-grid">
+
+      <a href="alexander-the-great/index.html" class="book-card">
+        <div class="book-card-cover">
+          <img src="alexander-the-great/images/young-alexander.png" alt="Alexander the Great">
+          <div class="book-card-badge">Free</div>
+        </div>
+        <div class="book-card-body">
+          <div class="book-card-era">Ancient Greece &middot; 356 &ndash; 323 BC</div>
+          <div class="book-card-title">Alexander the Great</div>
+          <div class="book-card-desc">The story of a boy who dreamed of uniting the world &mdash; from taming a wild horse at age 12 to building a civilization that connected East and West.</div>
+          <div class="book-card-meta">
+            <span>&#128196; 8 pages</span>
+            <span>&#127912; Illustrated</span>
+            <span>&#128118; Ages 6&ndash;12</span>
+          </div>
+        </div>
+      </a>
+
+      <div class="book-card coming-soon">
+        <div class="book-card-cover">
+          <div class="coming-soon-icon">&#127984;</div>
+        </div>
+        <div class="book-card-body">
+          <div class="book-card-era">Ancient Egypt &middot; 1279 &ndash; 1213 BC</div>
+          <div class="book-card-title">Ramesses the Great</div>
+          <div class="book-card-desc">The pharaoh who built the greatest monuments in Egypt and ruled for 66 years. Coming soon!</div>
+          <div class="book-card-meta">
+            <span>&#128196; Coming soon</span>
+            <span>&#128118; Ages 6&ndash;12</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="book-card coming-soon">
+        <div class="book-card-cover">
+          <div class="coming-soon-icon">&#127774;</div>
+        </div>
+        <div class="book-card-body">
+          <div class="book-card-era">Renaissance &middot; 1452 &ndash; 1519</div>
+          <div class="book-card-title">Leonardo da Vinci</div>
+          <div class="book-card-desc">The ultimate curious mind &mdash; painter, inventor, scientist, and dreamer who imagined flying machines 400 years early. Coming soon!</div>
+          <div class="book-card-meta">
+            <span>&#128196; Coming soon</span>
+            <span>&#128118; Ages 6&ndash;12</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="book-card coming-soon">
+        <div class="book-card-cover">
+          <div class="coming-soon-icon">&#9973;</div>
+        </div>
+        <div class="book-card-body">
+          <div class="book-card-era">Age of Exploration &middot; 1451 &ndash; 1506</div>
+          <div class="book-card-title">Christopher Columbus</div>
+          <div class="book-card-desc">The sailor who crossed an ocean nobody had crossed, looking for India and finding a whole new world. Coming soon!</div>
+          <div class="book-card-meta">
+            <span>&#128196; Coming soon</span>
+            <span>&#128118; Ages 6&ndash;12</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-stars">&#9733; &#9733; &#9733;</div>
+    <p>Made with love for curious young minds</p>
+  </footer>
+
+</body>
+</html>

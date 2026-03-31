@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alexander the Great - A History Book for Kids</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Fredoka:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="book-wrapper">
+    <!-- Book cover (initial state) -->
+    <div class="book-cover" id="bookCover">
+      <div class="cover-ornament top-left"></div>
+      <div class="cover-ornament top-right"></div>
+      <div class="cover-ornament bottom-left"></div>
+      <div class="cover-ornament bottom-right"></div>
+      <div class="cover-content">
+        <div class="cover-icon">&#127984;</div>
+        <h1>Alexander<br><span class="the">the</span><br>Great</h1>
+        <div class="cover-subtitle">A Story of a Boy Who Dreamed<br>of Uniting the World</div>
+        <div class="cover-decoration">&#9733; &#9733; &#9733;</div>
+        <button class="open-book-btn" onclick="openBook()">Open the Book</button>
+      </div>
+    </div>
+
+    <!-- The open book -->
+    <div class="book" id="book" style="display:none;">
+      <div class="book-spine"></div>
+
+      <!-- Navigation -->
+      <button class="nav-btn nav-prev" id="prevBtn" onclick="prevPage()">&#9664;</button>
+      <button class="nav-btn nav-next" id="nextBtn" onclick="nextPage()">&#9654;</button>
+
+      <!-- Page indicator -->
+      <div class="page-indicator" id="pageIndicator"></div>
+
+      <!-- SPREAD 1: The Boy from Macedonia -->
+      <div class="spread active" data-spread="0">
+        <div class="page page-left">
+          <div class="page-number">1</div>
+          <div class="chapter-header">
+            <div class="chapter-number">Chapter I</div>
+            <h2>The Boy from Macedonia</h2>
+            <div class="chapter-line"></div>
+          </div>
+          <div class="infographic-card card-blue">
+            <div class="card-icon">&#128118;</div>
+            <div class="card-title">Born in 356 BC</div>
+            <div class="card-text">In the ancient kingdom of Macedonia, a baby boy was born who would change the world forever.</div>
+          </div>
+          <div class="infographic-card card-gold">
+            <div class="card-icon">&#128081;</div>
+            <div class="card-title">Son of a King</div>
+            <div class="card-text">His father was King Philip II, a powerful ruler who united all of Greece.</div>
+          </div>
+          <div class="fun-fact">
+            <span class="fun-fact-label">&#127775; Fun Fact</span>
+            Alexander tamed a wild horse named <strong>Bucephalus</strong> when he was only 12 years old! Everyone else was afraid of it.
+          </div>
+        </div>
+        <div class="page page-right">
+          <div class="page-number">2</div>
+          <div class="illustration-frame">
+            <div class="illustration" id="img-young-alexander">
+              <img src="images/young-alexander.png" alt="Young Alexander taming Bucephalus">
+            </div>
+            <div class="illustration-caption">Alexander, age 12, bravely approaches the wild horse Bucephalus while others watch in amazement.</div>
+          </div>
+          <div class="infographic-card card-purple">
+            <div class="card-icon">&#128214;</div>
+            <div class="card-title">Student of Aristotle</div>
+            <div class="card-text">The greatest philosopher in the world, <strong>Aristotle</strong>, was his teacher! Alexander loved reading Homer's <em>Iliad</em> and slept with it under his pillow.</div>
+          </div>
+          <div class="quote-box">
+            <div class="quote-mark">&#8220;</div>
+            <div class="quote-text">There is nothing impossible to him who will try.</div>
+            <div class="quote-author">- Alexander, as a young prince</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPREAD 2: The Great Journey Begins -->
+      <div class="spread" data-spread="1">
+        <div class="page page-left">
+          <div class="page-number">3</div>
+          <div class="chapter-header">
+            <div class="chapter-number">Chapter II</div>
+            <h2>The Great Journey</h2>
+            <div class="chapter-line"></div>
+          </div>
+          <div class="infographic-card card-red">
+            <div class="card-icon">&#9876;&#65039;</div>
+            <div class="card-title">King at 20!</div>
+            <div class="card-text">When his father was gone, Alexander became king of Macedonia at just 20 years old. Then he set out on the greatest adventure in history.</div>
+          </div>
+          <div class="map-container">
+            <div class="map-title">&#127758; Alexander's Journey</div>
+            <img src="images/journey-map.png" alt="Map of Alexander's journey from Greece to India" class="journey-map-img">
+          </div>
+          <div class="infographic-stat-row">
+            <div class="stat-bubble">
+              <div class="stat-number">11</div>
+              <div class="stat-label">years of adventure</div>
+            </div>
+            <div class="stat-bubble">
+              <div class="stat-number">20,000</div>
+              <div class="stat-label">miles traveled</div>
+            </div>
+            <div class="stat-bubble">
+              <div class="stat-number">70+</div>
+              <div class="stat-label">cities founded</div>
+            </div>
+          </div>
+        </div>
+        <div class="page page-right">
+          <div class="page-number">4</div>
+          <div class="illustration-frame">
+            <div class="illustration" id="img-battle">
+              <img src="images/battle.png" alt="The Battle of Gaugamela">
+            </div>
+            <div class="illustration-caption">Alexander leads his cavalry charge at the Battle of Gaugamela, 331 BC</div>
+          </div>
+          <div class="infographic-card card-green">
+            <div class="card-icon">&#127942;</div>
+            <div class="card-title">Never Lost a Battle!</div>
+            <div class="card-text">In his entire life, Alexander <strong>never lost a single battle</strong>. His soldiers loved him because he always fought right beside them, not from behind.</div>
+          </div>
+          <div class="timeline-mini">
+            <div class="timeline-title">&#9203; Key Battles</div>
+            <div class="timeline-item">
+              <span class="timeline-year">334 BC</span>
+              <span class="timeline-event">Battle of Granicus</span>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-year">333 BC</span>
+              <span class="timeline-event">Battle of Issus</span>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-year">331 BC</span>
+              <span class="timeline-event">Battle of Gaugamela</span>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-year">326 BC</span>
+              <span class="timeline-event">Battle of Hydaspes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPREAD 3: A Dream of Unity -->
+      <div class="spread" data-spread="2">
+        <div class="page page-left">
+          <div class="page-number">5</div>
+          <div class="chapter-header">
+            <div class="chapter-number">Chapter III</div>
+            <h2>A Dream of One World</h2>
+            <div class="chapter-line"></div>
+          </div>
+          <div class="big-quote-block">
+            <div class="big-quote-icon">&#128172;</div>
+            <div class="big-quote-text">
+              &#8220;Imagine all people living and working together &mdash; Greeks and Barbarians, side by side, as equals.&#8221;
+            </div>
+            <div class="big-quote-attribution">
+              Alexander the Great's vision for the world
+            </div>
+          </div>
+          <div class="infographic-card card-teal">
+            <div class="card-icon">&#129309;</div>
+            <div class="card-title">Everyone is Equal</div>
+            <div class="card-text">Alexander believed that all people &mdash; no matter where they came from &mdash; could live, learn, and work together. He was one of the first leaders in history to dream of a <strong>united world</strong>.</div>
+          </div>
+          <div class="infographic-card card-orange">
+            <div class="card-icon">&#127981;</div>
+            <div class="card-title">Alexandria: City of Wonder</div>
+            <div class="card-text">He built a great city in Egypt called <strong>Alexandria</strong>. It had the biggest library in the world, where people from everywhere came to share knowledge!</div>
+          </div>
+        </div>
+        <div class="page page-right">
+          <div class="page-number">6</div>
+          <div class="illustration-frame">
+            <div class="illustration" id="img-unity">
+              <img src="images/unity.png" alt="People of many cultures together">
+            </div>
+            <div class="illustration-caption">Alexander's dream: Greeks, Persians, Egyptians, and Indians sharing ideas and friendship.</div>
+          </div>
+          <div class="did-you-know">
+            <div class="dyk-header">&#129300; Did You Know?</div>
+            <div class="dyk-items">
+              <div class="dyk-item">
+                <span class="dyk-bullet">&#9733;</span>
+                Alexander wore Persian clothes to show respect for other cultures
+              </div>
+              <div class="dyk-item">
+                <span class="dyk-bullet">&#9733;</span>
+                He encouraged his soldiers to marry people from the lands they visited
+              </div>
+              <div class="dyk-item">
+                <span class="dyk-bullet">&#9733;</span>
+                He kept the local leaders in charge of their own cities
+              </div>
+              <div class="dyk-item">
+                <span class="dyk-bullet">&#9733;</span>
+                The Library of Alexandria held over 400,000 scrolls!
+              </div>
+            </div>
+          </div>
+          <div class="fun-fact">
+            <span class="fun-fact-label">&#127775; Think About It</span>
+            Alexander showed that being a great leader isn't just about winning &mdash; it's about bringing people <strong>together</strong>. What can you do to bring people together in your school or neighborhood?
+          </div>
+        </div>
+      </div>
+
+      <!-- SPREAD 4: Legacy -->
+      <div class="spread" data-spread="3">
+        <div class="page page-left">
+          <div class="page-number">7</div>
+          <div class="chapter-header">
+            <div class="chapter-number">Chapter IV</div>
+            <h2>A Legacy That Lives On</h2>
+            <div class="chapter-line"></div>
+          </div>
+          <div class="infographic-card card-purple">
+            <div class="card-icon">&#128148;</div>
+            <div class="card-title">Gone Too Soon</div>
+            <div class="card-text">Sadly, Alexander died in Babylon in <strong>323 BC</strong>, at only 32 years old. But his dream of a connected world lived on.</div>
+          </div>
+          <div class="legacy-grid">
+            <div class="legacy-item">
+              <div class="legacy-icon">&#128218;</div>
+              <div class="legacy-title">Knowledge</div>
+              <div class="legacy-text">Greek learning spread across Asia and Africa</div>
+            </div>
+            <div class="legacy-item">
+              <div class="legacy-icon">&#127963;&#65039;</div>
+              <div class="legacy-title">Cities</div>
+              <div class="legacy-text">His cities became centers of art and science</div>
+            </div>
+            <div class="legacy-item">
+              <div class="legacy-icon">&#128506;</div>
+              <div class="legacy-title">Trade Routes</div>
+              <div class="legacy-text">Connected East and West for the first time</div>
+            </div>
+            <div class="legacy-item">
+              <div class="legacy-icon">&#128161;</div>
+              <div class="legacy-title">Ideas</div>
+              <div class="legacy-text">Inspired leaders for thousands of years</div>
+            </div>
+          </div>
+          <div class="quote-box">
+            <div class="quote-mark">&#8220;</div>
+            <div class="quote-text">I am not afraid of an army of lions led by a sheep; I am afraid of an army of sheep led by a lion.</div>
+            <div class="quote-author">- Alexander the Great</div>
+          </div>
+        </div>
+        <div class="page page-right">
+          <div class="page-number">8</div>
+          <div class="illustration-frame">
+            <div class="illustration" id="img-legacy">
+              <img src="images/legacy.png" alt="Alexander's lasting legacy">
+            </div>
+            <div class="illustration-caption">The world Alexander connected &mdash; from Greece to India, cultures blended and flourished.</div>
+          </div>
+          <div class="end-card">
+            <div class="end-card-icon">&#128218;</div>
+            <h3>The End</h3>
+            <p>Alexander showed us that the world is small enough to explore and big enough to share. His story reminds us that <strong>bringing people together</strong> is the greatest adventure of all.</p>
+            <div class="end-stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+          </div>
+          <div class="audio-placeholder" id="audioSection">
+            <div class="audio-icon">&#127911;</div>
+            <div class="audio-text">
+              <strong>Listen to this story!</strong>
+              <span class="audio-coming-soon">Narration coming soon (ElevenLabs)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

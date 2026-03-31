@@ -49,3 +49,55 @@ All images generated with **Nano Banana** (Gemini `gemini-3.1-flash-image-previe
 ### campaign-map.png
 - **Aspect:** 3:2 | **Size:** 2K
 - **Prompt:** Children's book style illustrated map showing Napoleon's campaigns across Europe. Warm watercolor parchment style map showing France at center, with arrows going to Italy, Egypt (pyramids), Austria, Spain, and Russia (with snowflakes). A red dotted campaign route. Cute compass rose in corner. Kid-friendly cartographic style with small illustrated landmarks. Aged paper background. No modern borders.
+
+---
+
+## Manga Experiment — Napoleon (Seinen Style)
+
+> **Style formula that works amazingly well:** Start every prompt with `"Black and white manga style illustration"`, add scene description, then anchor with `"Seinen manga style"` and reference specific manga artists/series (Vagabond, Vinland Saga, Naoki Urasawa, Takehiko Inoue, Berserk, Kingdom). End with `"No text or speech bubbles."` The artist references dramatically improve quality.
+
+### napoleon-eyes.png
+- **Aspect:** 1:1 | **Size:** 1K
+- **Prompt:** Black and white manga style illustration, dramatic panel: Napoleon Bonaparte in his iconic bicorne hat, extreme close-up of his intense eyes with speed lines radiating behind him. Manga screentone shading. High contrast ink drawing style. Dramatic Japanese manga aesthetic. Seinen style for adult readers. No text or speech bubbles.
+
+### napoleon-battlefield.png
+- **Aspect:** 2:3 | **Size:** 1K
+- **Prompt:** Black and white manga style illustration, full page dramatic panel: Napoleon Bonaparte standing alone on a battlefield at dawn, his coat blowing in the wind, soldiers silhouetted in the background. Dramatic low angle shot. Heavy ink work, manga screentone shading, speed lines in the sky. Seinen manga style, cinematic composition. Vagabond or Vinland Saga aesthetic. No text or speech bubbles.
+
+### napoleon-crown.png
+- **Aspect:** 3:4 | **Size:** 1K
+- **Prompt:** Black and white manga style illustration: Napoleon Bonaparte dramatically grabbing the crown from the Pope's trembling hands at his coronation in Notre-Dame cathedral. Extreme dramatic angle from below. Shocked faces of courtiers in the background. Heavy ink work, speed lines, manga screentone. Seinen style. Cinematic panel composition like Vagabond manga. No text or speech bubbles.
+
+### napoleon-shadow.png (BEST RESULT)
+- **Aspect:** 3:4 | **Size:** 1K
+- **Prompt:** Black and white manga style illustration: Napoleon as a young boy sitting alone in a dark military school dormitory, reading a book by candlelight. His shadow on the wall behind him is cast huge and shaped like an emperor with a crown. Symbolic foreshadowing. Seinen manga style, dramatic lighting, heavy contrast. Manga screentone shading. Like Naoki Urasawa or Takehiko Inoue style. No text.
+- **Note:** This was the standout image. The foreshadowing shadow technique is a classic manga device and Gemini nailed it first try.
+
+### napoleon-exile.png
+- **Aspect:** 16:9 | **Size:** 1K
+- **Prompt:** Black and white manga style illustration: Napoleon standing alone on a cliff on St. Helena island, looking out at the vast ocean, his back to the viewer. His coat is tattered and wind-blown. Seagulls in the sky. Melancholic and beautiful. Wide cinematic panel. Heavy ink work, manga screentone. Seinen style like Vinland Saga or Real by Takehiko Inoue. No text.
+
+### napoleon-russia.png
+- **Aspect:** 16:9 | **Size:** 1K
+- **Prompt:** Black and white manga style illustration: Dramatic cavalry charge scene, Napoleon leading horsemen at full gallop across a snowy Russian landscape. Horses and riders rendered with intense motion lines and dynamic poses. Blizzard and chaos. Dark dramatic seinen manga style, like Kingdom or Berserk aesthetic. Heavy ink, high contrast. Cinematic wide shot. No text.
+
+---
+
+## Prompt Tips & Patterns
+
+### Kids' Watercolor Style
+- **Prefix:** `"Children's book illustration in warm watercolor style:"`
+- **Suffix:** `"kid-friendly art style with bold outlines, storybook aesthetic. No text."`
+- **Aspect:** 3:2 works best for book illustrations, 2K for maps
+
+### Manga / Seinen Style
+- **Prefix:** `"Black and white manga style illustration:"`
+- **Key modifiers:** `"manga screentone shading"`, `"heavy ink work"`, `"speed lines"`, `"high contrast"`
+- **Artist anchors (improves quality dramatically):** Vagabond, Vinland Saga, Berserk, Kingdom, Naoki Urasawa, Takehiko Inoue
+- **Suffix:** `"Seinen manga style. No text or speech bubbles."`
+- **Aspect ratios by panel type:**
+  - Close-up / intensity: `1:1`
+  - Hero / full-page: `2:3`
+  - Standard panel: `3:4`
+  - Cinematic / wide: `16:9`
+  - Ultra-cinematic: `21:9`

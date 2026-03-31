@@ -370,15 +370,122 @@
 
     .back-link:hover { color: var(--white); }
 
-    /* ---- RESPONSIVE ---- */
+    /* ---- MOBILE: WEBTOON MODE ---- */
     @media (max-width: 640px) {
+
+      /* Cover */
       .cover-jp { font-size: 48px; letter-spacing: 8px; }
+      .cover-title { font-size: 12px; letter-spacing: 8px; }
+      .cover-subtitle { font-size: 11px; margin-bottom: 40px; }
+
+      /* Reader full bleed */
+      .manga-reader { padding: 0 0 80px; }
+
+      /* Panels go full width, no border, no gap */
+      .panel-grid { gap: 2px; }
+      .panel { border-width: 0; }
+
+      /* All grids become single column */
       .grid-two-col { grid-template-columns: 1fr; }
       .grid-trio { grid-template-columns: 1fr; grid-template-rows: auto; }
-      .grid-trio .panel:first-child { grid-row: auto; aspect-ratio: 3/4; }
-      .narration { padding: 30px 20px; }
-      .narration-text { font-size: 15px; }
-      .speech { font-size: 12px; padding: 8px 14px; max-width: 160px; }
+      .grid-trio .panel:first-child { grid-row: auto; }
+
+      /* Hero panels taller on mobile — fill the screen */
+      .grid-hero .panel { aspect-ratio: 3/5; max-height: 90vh; }
+
+      /* Two-col panels become tall when stacked */
+      .grid-two-col .panel { aspect-ratio: 3/4; }
+
+      /* Cinematic panels get taller so they're not tiny strips */
+      .grid-cinematic .panel { aspect-ratio: 4/3; }
+
+      /* Chapter breaks tighter */
+      .chapter-break { padding: 50px 20px; }
+      .chapter-title { font-size: 22px; }
+      .chapter-num { font-size: 10px; letter-spacing: 4px; }
+
+      /* Narration tighter */
+      .narration { padding: 28px 24px; }
+      .narration-text { font-size: 15px; line-height: 1.8; }
+      .narration-text br { display: none; }
+      .narration-small { font-size: 12px; }
+
+      /* Panel must allow content to flow naturally on mobile */
+      .panel {
+        overflow: visible;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .panel img {
+        width: 100%;
+        flex-shrink: 0;
+      }
+
+      /* Aspect ratio applies to image only, not the container */
+      .grid-hero .panel,
+      .grid-two-col .panel,
+      .grid-cinematic .panel {
+        aspect-ratio: auto;
+      }
+
+      .grid-hero .panel img { aspect-ratio: 3/5; object-fit: cover; }
+      .grid-two-col .panel img { aspect-ratio: 3/4; object-fit: cover; }
+      .grid-cinematic .panel img { aspect-ratio: 4/3; object-fit: cover; }
+
+      /* Text becomes blocks BELOW the image in each panel */
+      .thought, .speech {
+        position: static !important;
+        display: block;
+        max-width: 100%;
+        margin: 0;
+        text-shadow: none;
+        box-shadow: none;
+        inset: unset;
+        bottom: unset;
+        top: unset;
+        left: unset;
+        right: unset;
+      }
+
+      /* Thoughts: dark italic block */
+      .thought {
+        background: #111;
+        color: #aaa;
+        font-family: 'Noto Serif JP', serif;
+        font-style: italic;
+        font-size: 14px;
+        line-height: 1.8;
+        padding: 20px 24px;
+        text-align: center;
+        border-top: 1px solid #222;
+      }
+
+      /* Speech: white block */
+      .speech {
+        background: var(--white);
+        color: var(--black);
+        font-size: 14px;
+        padding: 16px 24px;
+        border-radius: 0;
+        text-align: center;
+        line-height: 1.6;
+      }
+
+      .speech::after { display: none; }
+
+      /* SFX smaller on mobile */
+      .sfx { font-size: 40px; top: 10px !important; left: 16px !important; }
+
+      /* Ending */
+      .ending { padding: 60px 24px; }
+      .ending-text { font-size: 14px; line-height: 1.9; }
+      .ending-text br { display: none; }
+      .ending-jp { font-size: 20px; }
+
+      /* Back link */
+      .back-link { top: 12px; left: 12px; font-size: 10px; }
     }
   </style>
 </head>

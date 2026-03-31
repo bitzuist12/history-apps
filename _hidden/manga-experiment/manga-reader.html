@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Napoleon - Manga Reader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #0a0a0a;
+      --dark: #111;
+      --white: #f5f5f0;
+      --grey: #888;
+      --gold: #8a7a5a;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ---- COVER ---- */
+    .cover {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      background: url('images/napoleon-battlefield.png') center/cover;
+      opacity: 0.25;
+      filter: contrast(1.3) brightness(0.5);
+    }
+
+    .cover-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .cover-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 80px;
+      font-weight: 900;
+      letter-spacing: 16px;
+      line-height: 1;
+      margin-bottom: 8px;
+      text-shadow: 0 0 60px rgba(255,255,255,0.15);
+    }
+
+    .cover-title {
+      font-size: 14px;
+      letter-spacing: 12px;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-bottom: 12px;
+    }
+
+    .cover-sub {
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 50px;
+    }
+
+    .cover-start {
+      border: 1px solid #444;
+      background: transparent;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cover-start:hover {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .cover-hint {
+      position: absolute;
+      bottom: 30px;
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 2px;
+    }
+
+    /* ---- MANGA READER ---- */
+    .reader {
+      display: none;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .reader.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ---- BOOK SPREAD ---- */
+    .spread-container {
+      display: flex;
+      height: 92vh;
+      max-height: 800px;
+      aspect-ratio: auto;
+      position: relative;
+    }
+
+    .page {
+      height: 100%;
+      background: var(--dark);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-left {
+      width: 48vw;
+      max-width: 520px;
+      border-right: 1px solid #1a1a1a;
+      box-shadow: inset -10px 0 30px -10px rgba(0,0,0,0.5);
+    }
+
+    .page-right {
+      width: 48vw;
+      max-width: 520px;
+      border-left: 1px solid #1a1a1a;
+      box-shadow: inset 10px 0 30px -10px rgba(0,0,0,0.5);
+    }
+
+    /* Spine */
+    .spine {
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(90deg, #000, #1a1a1a, #000);
+      flex-shrink: 0;
+    }
+
+    /* ---- PAGE CONTENT TYPES ---- */
+    .page-panel {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Split panel: two images stacked */
+    .page-split {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .page-split .page-panel {
+      flex: 1;
+    }
+
+    .page-split .page-panel + .page-panel {
+      border-top: 2px solid var(--black);
+    }
+
+    /* Text pages */
+    .page-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 36px;
+      text-align: center;
+    }
+
+    .page-chapter-num {
+      font-size: 10px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 14px;
+    }
+
+    .page-chapter-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 24px;
+      letter-spacing: 2px;
+    }
+
+    .page-narration {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 16px;
+      line-height: 2.2;
+      color: #999;
+      max-width: 360px;
+    }
+
+    .page-narration em {
+      color: var(--white);
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .page-narration-small {
+      font-size: 11px;
+      color: #444;
+      margin-top: 16px;
+      letter-spacing: 1px;
+    }
+
+    /* Thought/speech overlays */
+    .overlay-thought {
+      position: absolute;
+      color: var(--white);
+      font-family: 'Noto Serif JP', serif;
+      font-style: italic;
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 220px;
+      z-index: 5;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.95), 0 0 40px rgba(0,0,0,0.9);
+    }
+
+    .overlay-speech {
+      position: absolute;
+      background: var(--white);
+      color: var(--black);
+      border-radius: 16px;
+      padding: 12px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      max-width: 200px;
+      line-height: 1.4;
+      z-index: 5;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+
+    .overlay-speech::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 24px;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 10px solid var(--white);
+    }
+
+    .overlay-sfx {
+      position: absolute;
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 900;
+      font-size: 56px;
+      color: var(--white);
+      text-shadow: 3px 3px 0 var(--black), -1px -1px 0 var(--black);
+      z-index: 5;
+      transform: rotate(-8deg);
+      opacity: 0.85;
+    }
+
+    /* Ending page */
+    .page-ending {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 32px;
+      text-align: center;
+    }
+
+    .ending-line {
+      width: 30px;
+      height: 1px;
+      background: #333;
+      margin-bottom: 30px;
+    }
+
+    .ending-body {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      color: #666;
+      line-height: 2.2;
+    }
+
+    .ending-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28px;
+      color: #444;
+      margin-top: 30px;
+      letter-spacing: 8px;
+    }
+
+    .ending-credit {
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 40px;
+    }
+
+    /* ---- PAGE NUMBERS ---- */
+    .page-num {
+      position: absolute;
+      bottom: 10px;
+      font-size: 10px;
+      color: #333;
+      z-index: 10;
+    }
+
+    .page-left .page-num { left: 14px; }
+    .page-right .page-num { right: 14px; }
+
+    /* ---- NAVIGATION ---- */
+    .nav-zone {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 25%;
+      z-index: 20;
+      cursor: pointer;
+    }
+
+    .nav-zone-left {
+      left: 0;
+    }
+
+    .nav-zone-right {
+      right: 0;
+    }
+
+    .nav-zone:hover {
+      background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+    }
+
+    .nav-zone-right:hover {
+      background: linear-gradient(-90deg, rgba(255,255,255,0.02), transparent);
+    }
+
+    .nav-arrows {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 20px;
+      z-index: 30;
+    }
+
+    .nav-arrow {
+      width: 36px;
+      height: 36px;
+      border: 1px solid #333;
+      border-radius: 50%;
+      background: rgba(10,10,10,0.8);
+      color: #666;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-arrow:hover {
+      border-color: #666;
+      color: var(--white);
+    }
+
+    .nav-arrow:disabled {
+      opacity: 0.2;
+      cursor: default;
+    }
+
+    .page-counter {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 3px;
+      z-index: 30;
+    }
+
+    /* ---- PAGE TURN ANIMATION ---- */
+    .spread-container {
+      transition: opacity 0.15s ease;
+    }
+
+    .spread-container.turning {
+      opacity: 0;
+    }
+
+    /* ---- MOBILE: SINGLE PAGE MODE ---- */
+    @media (max-width: 768px) {
+      .cover-jp { font-size: 48px; letter-spacing: 8px; }
+      .cover-title { letter-spacing: 8px; }
+
+      .spread-container {
+        flex-direction: column;
+        height: 100vh;
+        width: 100vw;
+      }
+
+      .spine { display: none; }
+
+      /* Only show one page at a time */
+      .page-left, .page-right {
+        width: 100vw;
+        max-width: 100vw;
+        height: 100vh;
+        border: none;
+        box-shadow: none;
+        display: none;
+      }
+
+      .page-left.mobile-active,
+      .page-right.mobile-active {
+        display: flex;
+      }
+
+      .page-text { padding: 40px 28px; }
+      .page-chapter-title { font-size: 22px; }
+      .page-narration { font-size: 15px; line-height: 2; }
+
+      .overlay-thought { font-size: 13px; max-width: 180px; }
+      .overlay-speech { font-size: 12px; max-width: 170px; padding: 10px 14px; }
+      .overlay-sfx { font-size: 40px; }
+
+      .nav-zone { width: 35%; }
+
+      .nav-arrows { bottom: 8px; }
+
+      /* Swipe hint */
+      .swipe-hint {
+        display: block;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .page-left, .page-right {
+        display: flex !important;
+      }
+    }
+
+    .swipe-hint {
+      display: none;
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 2px;
+      z-index: 30;
+      animation: fadeHint 3s ease forwards;
+    }
+
+    @keyframes fadeHint {
+      0%, 70% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER -->
+  <div class="cover" id="cover" onclick="startReading()">
+    <div class="cover-bg"></div>
+    <div class="cover-content">
+      <div class="cover-jp">皇帝</div>
+      <div class="cover-title">Napoleon Bonaparte</div>
+      <div class="cover-sub">A Manga</div>
+      <button class="cover-start">Begin Reading</button>
+    </div>
+    <div class="cover-hint">TAP OR PRESS ARROW KEYS TO TURN PAGES</div>
+  </div>
+
+  <!-- READER -->
+  <div class="reader" id="reader">
+
+    <!-- Click zones -->
+    <div class="nav-zone nav-zone-left" onclick="prevSpread()"></div>
+    <div class="nav-zone nav-zone-right" onclick="nextSpread()"></div>
+
+    <!-- The spread -->
+    <div class="spread-container" id="spread"></div>
+
+    <!-- Bottom nav -->
+    <div class="nav-arrows">
+      <div class="nav-arrow" id="btnPrev" onclick="prevSpread()">&#9664;</div>
+      <div class="nav-arrow" id="btnNext" onclick="nextSpread()">&#9654;</div>
+    </div>
+    <div class="page-counter" id="pageCounter"></div>
+    <div class="swipe-hint">SWIPE OR TAP EDGES TO TURN</div>
+  </div>
+
+  <script>
+    // ---- PAGE DATA ----
+    // Each spread = [leftPage, rightPage]
+    // Page types: 'text', 'panel', 'split', 'ending'
+    const spreads = [
+
+      // SPREAD 0: Chapter title + Shadow panel
+      [
+        {
+          type: 'text',
+          chapter: '01',
+          title: 'The Shadow\non the Wall',
+          narration: 'Corsica, 1779.\nA boy of ten sits alone\nin a cold dormitory\nin mainland France.',
+          small: 'Brienne Military Academy'
+        },
+        {
+          type: 'panel',
+          img: 'images/napoleon-shadow.png',
+          alt: 'Young Napoleon reading, emperor shadow on wall',
+          thought: { text: 'They laugh at me\nfor being small...\n\nBut I have read every\nbook in this school.', bottom: '50px', right: '20px' }
+        }
+      ],
+
+      // SPREAD 1: Narration + Battlefield
+      [
+        {
+          type: 'text',
+          narration: 'He does not play.\nHe does not fight.\n\nHe <em>reads</em>.\n\nHundreds of books.\nThousands of pages.\n\nBy the time he is twenty,\nhe knows more about war\nthan generals twice his age.',
+        },
+        {
+          type: 'panel',
+          img: 'images/napoleon-battlefield.png',
+          alt: 'Napoleon standing on battlefield at dawn',
+          thought: { text: 'I have already\nfought this battle...\n\n...a hundred times\nin my mind.', top: '30px', left: '20px' }
+        }
+      ],
+
+      // SPREAD 2: Chapter 2 title + narration
+      [
+        {
+          type: 'text',
+          chapter: '02',
+          title: 'Every Road\nin Italy',
+          narration: 'Before setting foot in Italy,\nhe ordered <em>every single book</em>\non its topography.\n\nEvery mountain pass.\nEvery river crossing.\nEvery road through every valley.',
+        },
+        {
+          type: 'text',
+          narration: 'At twenty-four,\nthe youngest general in France.\n\nHis enemies had armies.\n\n<em>He had knowledge.</em>',
+          small: 'Italian Campaign, 1796'
+        }
+      ],
+
+      // SPREAD 3: Chapter 3 — Eyes + Crown
+      [
+        {
+          type: 'text',
+          chapter: '03',
+          title: 'No One Crowns Me\nBut Myself',
+          narration: 'Notre-Dame Cathedral.\nDecember 2, 1804.',
+        },
+        {
+          type: 'split',
+          panels: [
+            { img: 'images/napoleon-eyes.png', alt: 'Napoleon intense close-up' },
+            { img: 'images/napoleon-crown.png', alt: 'Napoleon seizing the crown',
+              speech: { text: 'I did not come this far to let another man place the crown on my head.', top: '12px', right: '12px' }
+            }
+          ]
+        }
+      ],
+
+      // SPREAD 4: Crown narration + Chapter 4
+      [
+        {
+          type: 'text',
+          narration: 'The Pope had come\nto crown him Emperor.\n\nNapoleon took the crown\nfrom his trembling hands\nand <em>placed it on\nhis own head</em>.',
+          small: 'The message was clear:\nhe answered to no one.'
+        },
+        {
+          type: 'text',
+          chapter: '04',
+          title: 'The Gamble\nToo Far',
+          narration: 'Every victory made him\nwant <em>more</em>.\n\nSpain. Austria.\n\nThen... Russia.',
+        }
+      ],
+
+      // SPREAD 5: Russia panel
+      [
+        {
+          type: 'panel',
+          img: 'images/napoleon-russia.png',
+          alt: 'Cavalry charge in Russian winter',
+          sfx: { text: '轟', top: '20px', left: '30px' },
+          isWide: true
+        },
+        {
+          type: 'text',
+          narration: '600,000 men marched\ninto Russia.\n\nThe largest army\nEurope had ever seen.\n\nThe Russians\nburned everything.\n\nThen <em>winter</em> came.',
+          small: 'Only 100,000 returned.'
+        }
+      ],
+
+      // SPREAD 6: Chapter 5 + Exile
+      [
+        {
+          type: 'text',
+          chapter: '05',
+          title: 'St. Helena',
+          narration: 'A tiny island\nin the middle of the Atlantic.\n\n2,000 kilometers\nfrom the nearest land.',
+        },
+        {
+          type: 'panel',
+          img: 'images/napoleon-exile.png',
+          alt: 'Napoleon alone on St. Helena cliff',
+          thought: { text: 'I have read\na thousand books...\n\nBut not the one\nthat tells a man\nwhen to stop.', bottom: '30px', right: '20px' }
+        }
+      ],
+
+      // SPREAD 7: Ending
+      [
+        {
+          type: 'text',
+          narration: 'He read.\nHe wrote.\nHe remembered.\n\nSome nights in Paris,\nhe had walked the streets\nin disguise with his secretary,\ndrinking <em>hot chocolate</em>\nlike an ordinary citizen.',
+        },
+        {
+          type: 'ending',
+          text: 'A reader who became\nan emperor.\n\nA general who built museums\nand wrote laws.\n\nHe took too many risks\nin the end.\n\nBut what an incredible mind.\nWhat an incredible journey.',
+          year: '1769 – 1821'
+        }
+      ]
+    ];
+
+    let currentSpread = 0;
+    let isMobile = window.innerWidth <= 768;
+    let mobilePageSide = 'left'; // which page is showing on mobile
+
+    function startReading() {
+      document.getElementById('cover').style.display = 'none';
+      const reader = document.getElementById('reader');
+      reader.classList.add('active');
+      currentSpread = 0;
+      mobilePageSide = 'left';
+      renderSpread();
+    }
+
+    function renderSpread() {
+      const container = document.getElementById('spread');
+      const data = spreads[currentSpread];
+      const [leftData, rightData] = data;
+
+      let html = '';
+      html += renderPage(leftData, 'page-left');
+      html += '<div class="spine"></div>';
+      html += renderPage(rightData, 'page-right');
+
+      container.innerHTML = html;
+
+      // Mobile: show correct page
+      if (isMobile) {
+        updateMobilePage();
+      }
+
+      updateNav();
+    }
+
+    function renderPage(data, side) {
+      const mobileActiveClass = isMobile
+        ? (side === 'page-left' && mobilePageSide === 'left' ? ' mobile-active' : '')
+          + (side === 'page-right' && mobilePageSide === 'right' ? ' mobile-active' : '')
+        : '';
+
+      let inner = '';
+
+      if (data.type === 'text') {
+        inner = '<div class="page-text">';
+        if (data.chapter) {
+          inner += `<div class="page-chapter-num">Chapter ${data.chapter}</div>`;
+          inner += `<div class="page-chapter-title">${data.title.replace(/\n/g, '<br>')}</div>`;
+        }
+        if (data.narration) {
+          inner += `<div class="page-narration">${data.narration.replace(/\n/g, '<br>')}</div>`;
+        }
+        if (data.small) {
+          inner += `<div class="page-narration-small">${data.small.replace(/\n/g, '<br>')}</div>`;
+        }
+        inner += '</div>';
+      }
+
+      else if (data.type === 'panel') {
+        inner = `<div class="page-panel">`;
+        inner += `<img src="${data.img}" alt="${data.alt}">`;
+        if (data.thought) {
+          const pos = Object.entries(data.thought)
+            .filter(([k]) => k !== 'text')
+            .map(([k,v]) => `${k}:${v}`).join(';');
+          inner += `<div class="overlay-thought" style="${pos}">${data.thought.text.replace(/\n/g, '<br>')}</div>`;
+        }
+        if (data.sfx) {
+          const pos = Object.entries(data.sfx)
+            .filter(([k]) => k !== 'text')
+            .map(([k,v]) => `${k}:${v}`).join(';');
+          inner += `<div class="overlay-sfx" style="${pos}">${data.sfx.text}</div>`;
+        }
+        inner += `</div>`;
+      }
+
+      else if (data.type === 'split') {
+        inner = '<div class="page-split">';
+        for (const p of data.panels) {
+          inner += `<div class="page-panel">`;
+          inner += `<img src="${p.img}" alt="${p.alt}">`;
+          if (p.speech) {
+            const pos = Object.entries(p.speech)
+              .filter(([k]) => k !== 'text')
+              .map(([k,v]) => `${k}:${v}`).join(';');
+            inner += `<div class="overlay-speech" style="${pos}">${p.speech.text}</div>`;
+          }
+          inner += `</div>`;
+        }
+        inner += '</div>';
+      }
+
+      else if (data.type === 'ending') {
+        inner = '<div class="page-ending">';
+        inner += '<div class="ending-line"></div>';
+        inner += `<div class="ending-body">${data.text.replace(/\n/g, '<br>')}</div>`;
+        inner += '<div class="ending-kanji">終</div>';
+        inner += `<div class="ending-credit">Napoleon Bonaparte — ${data.year}</div>`;
+        inner += '</div>';
+      }
+
+      const pageNum = currentSpread * 2 + (side === 'page-left' ? 1 : 2);
+
+      return `<div class="page ${side}${mobileActiveClass}">
+        ${inner}
+        <div class="page-num">${pageNum}</div>
+      </div>`;
+    }
+
+    function updateMobilePage() {
+      const left = document.querySelector('.page-left');
+      const right = document.querySelector('.page-right');
+      if (!left || !right) return;
+
+      left.classList.toggle('mobile-active', mobilePageSide === 'left');
+      right.classList.toggle('mobile-active', mobilePageSide === 'right');
+    }
+
+    function nextSpread() {
+      if (isMobile) {
+        if (mobilePageSide === 'left') {
+          mobilePageSide = 'right';
+          animateTurn(() => updateMobilePage());
+          updateNav();
+          return;
+        } else {
+          mobilePageSide = 'left';
+        }
+      }
+
+      if (currentSpread >= spreads.length - 1) return;
+      currentSpread++;
+      animateTurn(() => renderSpread());
+    }
+
+    function prevSpread() {
+      if (isMobile) {
+        if (mobilePageSide === 'right') {
+          mobilePageSide = 'left';
+          animateTurn(() => updateMobilePage());
+          updateNav();
+          return;
+        } else {
+          mobilePageSide = 'right';
+        }
+      }
+
+      if (currentSpread <= 0) return;
+      currentSpread--;
+      animateTurn(() => renderSpread());
+    }
+
+    function animateTurn(callback) {
+      const container = document.getElementById('spread');
+      container.classList.add('turning');
+      setTimeout(() => {
+        callback();
+        container.classList.remove('turning');
+      }, 150);
+    }
+
+    function updateNav() {
+      const totalPages = spreads.length * 2;
+      let currentPage = currentSpread * 2 + (mobilePageSide === 'right' ? 2 : 1);
+
+      document.getElementById('pageCounter').textContent =
+        isMobile
+          ? `${currentPage} / ${totalPages}`
+          : `${currentSpread * 2 + 1}–${currentSpread * 2 + 2} / ${totalPages}`;
+
+      const atStart = currentSpread === 0 && (isMobile ? mobilePageSide === 'left' : true);
+      const atEnd = currentSpread === spreads.length - 1 && (isMobile ? mobilePageSide === 'right' : true);
+
+      document.getElementById('btnPrev').style.opacity = atStart ? '0.2' : '1';
+      document.getElementById('btnPrev').style.pointerEvents = atStart ? 'none' : 'auto';
+      document.getElementById('btnNext').style.opacity = atEnd ? '0.2' : '1';
+      document.getElementById('btnNext').style.pointerEvents = atEnd ? 'none' : 'auto';
+    }
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('cover').style.display !== 'none') {
+        if (e.key === 'Enter' || e.key === ' ') startReading();
+        return;
+      }
+      if (e.key === 'ArrowRight' || e.key === ' ') nextSpread();
+      if (e.key === 'ArrowLeft') prevSpread();
+    });
+
+    // Touch swipe
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      const diff = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(diff) > 50) {
+        if (diff < 0) nextSpread();
+        else prevSpread();
+      }
+    }, { passive: true });
+
+    // Resize handler
+    window.addEventListener('resize', () => {
+      const wasMobile = isMobile;
+      isMobile = window.innerWidth <= 768;
+      if (wasMobile !== isMobile) {
+        mobilePageSide = 'left';
+        renderSpread();
+      }
+    });
+  </script>
+
+</body>
+</html>

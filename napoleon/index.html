@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Napoleon Bonaparte - A History Book for Kids</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Fredoka:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../alexander-the-great/style.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="book-wrapper">
+    <!-- Book cover -->
+    <div class="book-cover napoleon-cover" id="bookCover">
+      <div class="cover-ornament top-left"></div>
+      <div class="cover-ornament top-right"></div>
+      <div class="cover-ornament bottom-left"></div>
+      <div class="cover-ornament bottom-right"></div>
+      <div class="cover-content">
+        <div class="cover-icon">&#9876;&#65039;</div>
+        <h1>Napoleon<br><span class="the">Bonaparte</span></h1>
+        <div class="cover-subtitle">The Little General Who Read<br>More Books Than Anyone</div>
+        <div class="cover-decoration">&#9733; &#9733; &#9733;</div>
+        <button class="open-book-btn" onclick="openBook()">Open the Book</button>
+      </div>
+    </div>
+
+    <!-- The open book -->
+    <div class="book" id="book" style="display:none;">
+      <div class="book-spine"></div>
+
+      <button class="nav-btn nav-prev" id="prevBtn" onclick="prevPage()">&#9664;</button>
+      <button class="nav-btn nav-next" id="nextBtn" onclick="nextPage()">&#9654;</button>
+      <div class="page-indicator" id="pageIndicator"></div>
+
+      <!-- SPREAD 1: The Boy Who Read Everything -->
+      <div class="spread active" data-spread="0">
+        <div class="page page-left">
+          <div class="page-number">1</div>
+          <div class="chapter-header">
+            <div class="chapter-number">Chapter I</div>
+            <h2>The Boy Who Read Everything</h2>
+            <div class="chapter-line"></div>
+          </div>
+          <div class="infographic-card card-blue">
+            <div class="card-icon">&#128118;</div>
+            <div class="card-title">Born in Corsica, 1769</div>
+            <div class="card-text">Napoleon was born on a small island called <strong>Corsica</strong>, just off the coast of France. He spoke Italian before he learned French!</div>
+          </div>
+          <div class="infographic-card card-gold">
+            <div class="card-icon">&#127979;</div>
+            <div class="card-title">Alone at Military School</div>
+            <div class="card-text">At just <strong>9 years old</strong>, he was sent to a military school in France. The other boys made fun of his accent and small size. So he spent all his time doing something else &mdash; <strong>reading</strong>.</div>
+          </div>
+          <div class="infographic-card card-purple">
+            <div class="card-icon">&#128218;</div>
+            <div class="card-title">A Reading Machine!</div>
+            <div class="card-text">Napoleon read <strong>hundreds and hundreds of books</strong> &mdash; about history, geography, mathematics, and great leaders. While other boys played, he sat by candlelight devouring every book he could find.</div>
+          </div>
+          <div class="fun-fact">
+            <span class="fun-fact-label">&#127775; Fun Fact</span>
+            Napoleon was so small that his classmates called him <strong>"the little corporal"</strong> &mdash; but he didn't care. He knew that the real power was in his mind, not his fists!
+          </div>
+        </div>
+        <div class="page page-right">
+          <div class="page-number">2</div>
+          <div class="illustration-frame">
+            <div class="illustration">
+              <img src="images/young-napoleon.png" alt="Young Napoleon reading by candlelight at military school">
+            </div>
+            <div class="illustration-caption">Young Napoleon reads by candlelight at military school while other boys play outside.</div>
+          </div>
+          <div class="quote-box">
+            <div class="quote-mark">&#8220;</div>
+            <div class="quote-text">Show me a family of readers, and I will show you the people who move the world.</div>
+            <div class="quote-author">- Napoleon Bonaparte</div>
+          </div>
+          <div class="infographic-card card-teal">
+            <div class="card-icon">&#128214;</div>
+            <div class="card-title">Books Were His Secret Weapon</div>
+            <div class="card-text">Later in life, Napoleon said that his greatest victories came not from bravery, but from <strong>preparation</strong>. And preparation meant reading. Every. Single. Book.</div>
+          </div>
+          <div class="infographic-stat-row">
+            <div class="stat-bubble">
+              <div class="stat-number">9</div>
+              <div class="stat-label">years old at military school</div>
+            </div>
+            <div class="stat-bubble">
+              <div class="stat-number">24</div>
+              <div class="stat-label">years old when made general</div>
+            </div>
+            <div class="stat-bubble">
+              <div class="stat-number">1000+</div>
+              <div class="stat-label">books in his personal library</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPREAD 2: The Italian Campaign & The Power of Preparation -->
+      <div class="spread" data-spread="1">
+        <div class="page page-left">
+          <div class="page-number">3</div>
+          <div class="chapter-header">
+            <div class="chapter-number">Chapter II</div>
+            <h2>Preparing Like No One Else</h2>
+            <div class="chapter-line"></div>
+          </div>
+          <div class="big-quote-block">
+            <div class="big-quote-icon">&#128218;</div>
+            <div class="big-quote-text">
+              &#8220;Before I set foot in Italy, I had read every single book about its mountains, rivers, and roads. I knew the land better than the people who lived there.&#8221;
+            </div>
+            <div class="big-quote-attribution">
+              Napoleon, on preparing for the Italian Campaign
+            </div>
+          </div>
+          <div class="infographic-card card-red">
+            <div class="card-icon">&#128506;</div>
+            <div class="card-title">He Ordered ALL the Books</div>
+            <div class="card-text">Before invading Italy in 1796, Napoleon ordered <strong>every single book</strong> he could find about Italy &mdash; its topography, mountains, rivers, roads, and cities. He studied them all, cover to cover.</div>
+          </div>
+          <div class="infographic-card card-green">
+            <div class="card-icon">&#128200;</div>
+            <div class="card-title">Knowledge = Victory</div>
+            <div class="card-text">Because he had read so much, he could surprise his enemies by taking routes through mountains they thought were <strong>impossible</strong>. His soldiers were amazed &mdash; it was like he had a magic map in his head!</div>
+          </div>
+          <div class="fun-fact">
+            <span class="fun-fact-label">&#127775; Think About It</span>
+            Napoleon showed that <strong>studying hard</strong> can be more powerful than being the biggest or strongest. What could you learn about today that might help you tomorrow?
+          </div>
+        </div>
+        <div class="page page-right">
+          <div class="page-number">4</div>
+          <div class="illustration-frame">
+            <div class="illustration">
+              <img src="images/italian-campaign.png" alt="Napoleon studying maps of Italy before his campaign">
+            </div>
+            <div class="illustration-caption">General Napoleon studies his maps and books overlooking the Italian countryside, 1796.</div>
+          </div>
+          <div class="map-container">
+            <div class="map-title">&#127758; Napoleon's Campaigns Across Europe</div>
+            <img src="images/campaign-map.png" alt="Map of Napoleon's campaigns across Europe" class="journey-map-img">
+          </div>
+        </div>
+      </div>
+
+      <!-- SPREAD 3: More Than a General -->
+      <div class="spread" data-spread="2">
+        <div class="page page-left">
+          <div class="page-number">5</div>
+          <div class="chapter-header">
+            <div class="chapter-number">Chapter III</div>
+            <h2>More Than a General</h2>
+            <div class="chapter-line"></div>
+          </div>
+          <div class="infographic-card card-gold">
+            <div class="card-icon">&#127963;&#65039;</div>
+            <div class="card-title">He Created the Louvre Museum!</div>
+            <div class="card-text">The famous <strong>Louvre Museum</strong> in Paris &mdash; the biggest art museum in the world &mdash; was Napoleon's idea! When he conquered Northern Italy, he brought back incredible paintings and sculptures from the Vatican and Italian churches to fill it.</div>
+          </div>
+          <div class="infographic-card card-purple">
+            <div class="card-icon">&#128300;</div>
+            <div class="card-title">A Scientist at Heart</div>
+            <div class="card-text">Napoleon was elected to the <strong>Institut de France</strong> &mdash; the most important society of scientists and scholars in all of France. He was so proud of this honor that he wore their special uniform whenever he could!</div>
+          </div>
+          <div class="infographic-card card-orange">
+            <div class="card-icon">&#9878;&#65039;</div>
+            <div class="card-title">The Napoleonic Code</div>
+            <div class="card-text">He wrote a whole new set of laws called the <strong>Napoleonic Code</strong> that said everyone should be treated equally &mdash; no matter if you were rich or poor. Many countries still use these laws today!</div>
+          </div>
+          <div class="fun-fact">
+            <span class="fun-fact-label">&#127775; Fun Fact</span>
+            Some nights, Napoleon would sneak out of his palace <strong>in disguise</strong> with his secretary and walk through the streets of Paris. Their favorite stop? A little caf&eacute; where they would sit and drink <strong>hot chocolate</strong> like ordinary citizens!
+          </div>
+        </div>
+        <div class="page page-right">
+          <div class="page-number">6</div>
+          <div class="illustration-frame">
+            <div class="illustration">
+              <img src="images/napoleonic-code.png" alt="Napoleon writing the Napoleonic Code surrounded by books">
+            </div>
+            <div class="illustration-caption">Napoleon signs the Napoleonic Code in his grand library &mdash; laws that changed the world.</div>
+          </div>
+          <div class="did-you-know">
+            <div class="dyk-header">&#129300; Did You Know?</div>
+            <div class="dyk-items">
+              <div class="dyk-item">
+                <span class="dyk-bullet">&#9733;</span>
+                The Louvre has over <strong>380,000 artworks</strong> today &mdash; Napoleon started the collection!
+              </div>
+              <div class="dyk-item">
+                <span class="dyk-bullet">&#9733;</span>
+                He brought 167 scientists and scholars with him to Egypt to study the pyramids and ancient culture
+              </div>
+              <div class="dyk-item">
+                <span class="dyk-bullet">&#9733;</span>
+                He created public schools so that <strong>every child</strong> in France could get an education
+              </div>
+              <div class="dyk-item">
+                <span class="dyk-bullet">&#9733;</span>
+                He always traveled with a portable library of at least 100 books &mdash; even on the battlefield!
+              </div>
+            </div>
+          </div>
+          <div class="legacy-grid">
+            <div class="legacy-item">
+              <div class="legacy-icon">&#127912;</div>
+              <div class="legacy-title">The Louvre</div>
+              <div class="legacy-text">World's greatest art museum</div>
+            </div>
+            <div class="legacy-item">
+              <div class="legacy-icon">&#9878;&#65039;</div>
+              <div class="legacy-title">Legal Code</div>
+              <div class="legacy-text">Equal laws for everyone</div>
+            </div>
+            <div class="legacy-item">
+              <div class="legacy-icon">&#127979;</div>
+              <div class="legacy-title">Public Schools</div>
+              <div class="legacy-text">Education for all children</div>
+            </div>
+            <div class="legacy-item">
+              <div class="legacy-icon">&#128300;</div>
+              <div class="legacy-title">Egyptology</div>
+              <div class="legacy-text">Discovered the Rosetta Stone</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPREAD 4: Rise and Fall & Legacy -->
+      <div class="spread" data-spread="3">
+        <div class="page page-left">
+          <div class="page-number">7</div>
+          <div class="chapter-header">
+            <div class="chapter-number">Chapter IV</div>
+            <h2>The Rise and the Fall</h2>
+            <div class="chapter-line"></div>
+          </div>
+          <div class="infographic-card card-red">
+            <div class="card-icon">&#128081;</div>
+            <div class="card-title">Emperor of France</div>
+            <div class="card-text">In 1804, Napoleon crowned himself <strong>Emperor</strong>. He was so bold that he took the crown from the Pope's hands and placed it on his own head!</div>
+          </div>
+          <div class="timeline-mini">
+            <div class="timeline-title">&#9203; Napoleon's Journey</div>
+            <div class="timeline-item">
+              <span class="timeline-year">1769</span>
+              <span class="timeline-event">Born in Corsica</span>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-year">1796</span>
+              <span class="timeline-event">Italian Campaign &mdash; his first great victory</span>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-year">1798</span>
+              <span class="timeline-event">Expedition to Egypt with 167 scholars</span>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-year">1804</span>
+              <span class="timeline-event">Crowned Emperor of France</span>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-year">1805</span>
+              <span class="timeline-event">Victory at Austerlitz &mdash; his masterpiece</span>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-year">1812</span>
+              <span class="timeline-event">The terrible march into Russia</span>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-year">1815</span>
+              <span class="timeline-event">Waterloo &mdash; his final battle</span>
+            </div>
+            <div class="timeline-item">
+              <span class="timeline-year">1821</span>
+              <span class="timeline-event">Dies on St. Helena, still reading books</span>
+            </div>
+          </div>
+          <div class="infographic-card card-blue">
+            <div class="card-icon">&#10052;&#65039;</div>
+            <div class="card-title">Russia: Too Far, Too Cold</div>
+            <div class="card-text">Napoleon's biggest mistake was marching into <strong>Russia</strong> in winter. The cold was so terrible that most of his army never came home. Even the greatest reader couldn't find a book to solve that problem.</div>
+          </div>
+        </div>
+        <div class="page page-right">
+          <div class="page-number">8</div>
+          <div class="illustration-frame">
+            <div class="illustration">
+              <img src="images/exile.png" alt="Napoleon in exile on St. Helena island reading a book">
+            </div>
+            <div class="illustration-caption">Napoleon on the island of St. Helena &mdash; even in exile, he never stopped reading.</div>
+          </div>
+          <div class="infographic-card card-teal">
+            <div class="card-icon">&#127965;&#65039;</div>
+            <div class="card-title">Exile on a Tiny Island</div>
+            <div class="card-text">After losing at Waterloo, Napoleon was sent to <strong>St. Helena</strong> &mdash; a tiny island in the middle of the Atlantic Ocean. He spent his final years there, reading and writing his memoirs.</div>
+          </div>
+          <div class="end-card">
+            <div class="end-card-icon">&#128218;</div>
+            <h3>The End</h3>
+            <p>Napoleon showed us that a small boy from a small island, armed with <strong>curiosity and books</strong>, can change the entire world. He wasn't just a general &mdash; he was a reader, a scientist, a lawmaker, and a dreamer who loved hot chocolate.</p>
+            <div class="end-stars">&#9733; &#9733; &#9733; &#9733; &#9733;</div>
+          </div>
+          <div class="audio-placeholder" id="audioSection">
+            <div class="audio-icon">&#127911;</div>
+            <div class="audio-text">
+              <strong>Listen to this story!</strong>
+              <span class="audio-coming-soon">Narration coming soon (ElevenLabs)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../alexander-the-great/script.js"></script>
+</body>
+</html>

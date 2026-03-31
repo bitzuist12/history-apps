@@ -1,0 +1,19 @@
+/* Napoleon-specific overrides */
+
+.napoleon-cover {
+  background: linear-gradient(135deg, #1a2a5e 0%, #0f1d47 30%, #1a2a5e 50%, #0f1d47 100%);
+  border-color: #0a1535;
+}
+
+.napoleon-cover .cover-ornament {
+  border-color: #d4af37;
+}
+
+.napoleon-cover .open-book-btn {
+  border-color: #d4af37;
+}
+
+.napoleon-cover .open-book-btn:hover {
+  background: #d4af37;
+  color: #0f1d47;
+}

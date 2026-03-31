@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Napoleon - A Manga</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #f5f5f0;
+      --grey: #888;
+      --panel-border: #222;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ---- COVER ---- */
+    .cover {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      background: url('images/napoleon-battlefield.png') center/cover;
+      opacity: 0.3;
+      filter: contrast(1.3) brightness(0.6);
+    }
+
+    .cover-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .cover-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 80px;
+      font-weight: 900;
+      letter-spacing: 16px;
+      line-height: 1;
+      margin-bottom: 8px;
+      text-shadow: 0 0 60px rgba(255,255,255,0.2);
+    }
+
+    .cover-title {
+      font-size: 14px;
+      letter-spacing: 12px;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-bottom: 40px;
+    }
+
+    .cover-subtitle {
+      font-size: 12px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 60px;
+    }
+
+    .cover-start {
+      border: 1px solid #444;
+      background: transparent;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cover-start:hover {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .cover-chapter {
+      position: absolute;
+      bottom: 40px;
+      font-size: 11px;
+      color: #444;
+      letter-spacing: 3px;
+    }
+
+    /* ---- MANGA READER ---- */
+    .manga-reader {
+      display: none;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 20px 100px;
+    }
+
+    .manga-reader.active {
+      display: block;
+    }
+
+    /* ---- CHAPTER HEADERS ---- */
+    .chapter-break {
+      text-align: center;
+      padding: 80px 20px;
+      position: relative;
+    }
+
+    .chapter-break::before,
+    .chapter-break::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 1px;
+      background: #333;
+    }
+
+    .chapter-break::before { top: 30px; }
+    .chapter-break::after { bottom: 30px; }
+
+    .chapter-num {
+      font-size: 11px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 12px;
+    }
+
+    .chapter-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    /* ---- PANELS ---- */
+    .panel-grid {
+      display: grid;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      background: #111;
+      border: 2px solid var(--panel-border);
+    }
+
+    .panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.1);
+      transition: filter 0.3s;
+    }
+
+    .panel:hover img {
+      filter: contrast(1.2) brightness(1.05);
+    }
+
+    /* Panel layouts */
+    .grid-full {
+      grid-template-columns: 1fr;
+    }
+
+    .grid-full .panel {
+      aspect-ratio: 16/9;
+    }
+
+    .grid-two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .grid-two-col .panel {
+      aspect-ratio: 3/4;
+    }
+
+    .grid-hero {
+      grid-template-columns: 1fr;
+    }
+
+    .grid-hero .panel {
+      aspect-ratio: 2/3;
+      max-height: 85vh;
+    }
+
+    .grid-trio {
+      grid-template-columns: 1fr 2fr;
+      grid-template-rows: 1fr 1fr;
+    }
+
+    .grid-trio .panel:first-child {
+      grid-row: 1 / 3;
+      aspect-ratio: auto;
+    }
+
+    .grid-trio .panel:not(:first-child) {
+      aspect-ratio: 16/9;
+    }
+
+    .grid-cinematic {
+      grid-template-columns: 1fr;
+    }
+
+    .grid-cinematic .panel {
+      aspect-ratio: 21/9;
+    }
+
+    /* ---- DIALOGUE / NARRATION ---- */
+    .narration {
+      padding: 40px 60px;
+      text-align: center;
+    }
+
+    .narration-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 18px;
+      line-height: 2;
+      color: #ccc;
+      font-weight: 400;
+    }
+
+    .narration-text em {
+      color: var(--white);
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .narration-small {
+      font-size: 13px;
+      color: #666;
+      margin-top: 12px;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    .speech {
+      position: absolute;
+      background: var(--white);
+      color: var(--black);
+      border-radius: 20px;
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      max-width: 220px;
+      line-height: 1.4;
+      z-index: 5;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .speech::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 30px;
+      width: 0;
+      height: 0;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 12px solid var(--white);
+    }
+
+    .thought {
+      position: absolute;
+      color: var(--white);
+      font-family: 'Noto Serif JP', serif;
+      font-style: italic;
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 240px;
+      z-index: 5;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.8);
+    }
+
+    /* ---- SFX ---- */
+    .sfx {
+      position: absolute;
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 900;
+      font-size: 64px;
+      color: var(--white);
+      text-shadow: 3px 3px 0 var(--black), -1px -1px 0 var(--black);
+      z-index: 5;
+      transform: rotate(-8deg);
+      opacity: 0.9;
+    }
+
+    /* ---- ENDING ---- */
+    .ending {
+      text-align: center;
+      padding: 100px 40px;
+    }
+
+    .ending-line {
+      width: 40px;
+      height: 1px;
+      background: #333;
+      margin: 0 auto 30px;
+    }
+
+    .ending-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 16px;
+      color: #666;
+      line-height: 2;
+    }
+
+    .ending-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 24px;
+      margin-top: 30px;
+      color: #444;
+      letter-spacing: 8px;
+    }
+
+    .ending-note {
+      margin-top: 60px;
+      font-size: 11px;
+      color: #333;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ---- SCROLL ANIMATIONS ---- */
+    .panel-grid,
+    .narration,
+    .chapter-break {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .panel-grid.visible,
+    .narration.visible,
+    .chapter-break.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ---- BACK LINK ---- */
+    .back-link {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #444;
+      text-decoration: none;
+      z-index: 100;
+      transition: color 0.3s;
+    }
+
+    .back-link:hover { color: var(--white); }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 640px) {
+      .cover-jp { font-size: 48px; letter-spacing: 8px; }
+      .grid-two-col { grid-template-columns: 1fr; }
+      .grid-trio { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .grid-trio .panel:first-child { grid-row: auto; aspect-ratio: 3/4; }
+      .narration { padding: 30px 20px; }
+      .narration-text { font-size: 15px; }
+      .speech { font-size: 12px; padding: 8px 14px; max-width: 160px; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="../../index.html" class="back-link">&#8592; LIBRARY</a>
+
+  <!-- COVER -->
+  <div class="cover" id="cover" onclick="startReading()">
+    <div class="cover-bg"></div>
+    <div class="cover-content">
+      <div class="cover-jp">皇帝</div>
+      <div class="cover-title">Napoleon Bonaparte</div>
+      <div class="cover-subtitle">A manga experiment</div>
+      <button class="cover-start">Begin Reading</button>
+    </div>
+    <div class="cover-chapter">Chapter One &mdash; The Shadow on the Wall</div>
+  </div>
+
+  <!-- MANGA READER -->
+  <div class="manga-reader" id="reader">
+
+    <!-- CH 1: THE SHADOW -->
+    <div class="chapter-break">
+      <div class="chapter-num">Chapter 01</div>
+      <div class="chapter-title">The Shadow on the Wall</div>
+    </div>
+
+    <!-- Panel: The boy reading alone, emperor shadow -->
+    <div class="panel-grid grid-hero">
+      <div class="panel">
+        <img src="images/napoleon-shadow.png" alt="Young Napoleon reading, emperor shadow on wall">
+        <div class="thought" style="bottom: 60px; right: 30px;">
+          They laugh at me<br>for being small...<br><br>But I have read every<br>book in this school.
+        </div>
+      </div>
+    </div>
+
+    <div class="narration">
+      <div class="narration-text">
+        Corsica, 1779. A boy of ten sits alone<br>
+        in a cold dormitory in mainland France.<br><br>
+        He does not play. He does not fight.<br>
+        He <em>reads</em>.
+      </div>
+      <div class="narration-small">Brienne Military Academy, France</div>
+    </div>
+
+    <!-- CH 2: THE GENERAL -->
+    <div class="chapter-break">
+      <div class="chapter-num">Chapter 02</div>
+      <div class="chapter-title">Every Road in Italy</div>
+    </div>
+
+    <div class="narration">
+      <div class="narration-text">
+        Before setting foot in Italy, he ordered<br>
+        <em>every single book</em> on its topography.<br><br>
+        Every mountain pass. Every river crossing.<br>
+        Every road through every valley.
+      </div>
+    </div>
+
+    <!-- Panel: Napoleon on battlefield -->
+    <div class="panel-grid grid-hero">
+      <div class="panel">
+        <img src="images/napoleon-battlefield.png" alt="Napoleon standing on battlefield at dawn">
+        <div class="thought" style="top: 40px; left: 30px;">
+          I have already<br>fought this battle...<br><br>...a hundred times<br>in my mind.
+        </div>
+      </div>
+    </div>
+
+    <div class="narration">
+      <div class="narration-text">
+        At twenty-four, the youngest general in France.<br>
+        His enemies had armies.<br>
+        <em>He had knowledge.</em>
+      </div>
+    </div>
+
+    <!-- CH 3: THE CROWN -->
+    <div class="chapter-break">
+      <div class="chapter-num">Chapter 03</div>
+      <div class="chapter-title">No One Crowns Me But Myself</div>
+    </div>
+
+    <!-- Panel: Eyes close-up + Crown scene -->
+    <div class="panel-grid grid-two-col">
+      <div class="panel">
+        <img src="images/napoleon-eyes.png" alt="Napoleon intense close-up">
+      </div>
+      <div class="panel">
+        <img src="images/napoleon-crown.png" alt="Napoleon seizing the crown from the Pope">
+        <div class="speech" style="top: 20px; right: 20px;">
+          I did not come this far to let another man place the crown on my head.
+        </div>
+      </div>
+    </div>
+
+    <div class="narration">
+      <div class="narration-text">
+        Notre-Dame Cathedral, December 2, 1804.<br><br>
+        The Pope had come to crown him Emperor.<br>
+        Napoleon took the crown from his hands<br>
+        and <em>placed it on his own head</em>.
+      </div>
+      <div class="narration-small">The message was clear: he answered to no one.</div>
+    </div>
+
+    <!-- CH 4: THE GAMBLE -->
+    <div class="chapter-break">
+      <div class="chapter-num">Chapter 04</div>
+      <div class="chapter-title">The Gamble Too Far</div>
+    </div>
+
+    <div class="narration">
+      <div class="narration-text">
+        Every victory made him want <em>more</em>.<br>
+        Spain. Austria. Then...<br>
+        Russia.
+      </div>
+    </div>
+
+    <!-- Panel: Russia campaign wide -->
+    <div class="panel-grid grid-cinematic">
+      <div class="panel">
+        <img src="images/napoleon-russia.png" alt="Cavalry charge in Russian winter">
+        <div class="sfx" style="top: 20px; left: 40px;">轟</div>
+      </div>
+    </div>
+
+    <div class="narration">
+      <div class="narration-text">
+        600,000 men marched into Russia.<br>
+        The largest army Europe had ever seen.<br><br>
+        The Russians burned everything.<br>
+        Then <em>winter</em> came.
+      </div>
+      <div class="narration-small">Only 100,000 returned.</div>
+    </div>
+
+    <!-- CH 5: THE END -->
+    <div class="chapter-break">
+      <div class="chapter-num">Chapter 05</div>
+      <div class="chapter-title">St. Helena</div>
+    </div>
+
+    <!-- Panel: Exile wide -->
+    <div class="panel-grid grid-cinematic">
+      <div class="panel">
+        <img src="images/napoleon-exile.png" alt="Napoleon alone on St. Helena cliff">
+        <div class="thought" style="bottom: 40px; right: 40px;">
+          I have read<br>a thousand books...<br><br>But not the one that tells<br>a man when to stop.
+        </div>
+      </div>
+    </div>
+
+    <div class="narration">
+      <div class="narration-text">
+        A tiny island in the middle of the Atlantic.<br>
+        2,000 kilometers from the nearest land.<br><br>
+        He read. He wrote. He remembered.
+      </div>
+    </div>
+
+    <!-- ENDING -->
+    <div class="ending">
+      <div class="ending-line"></div>
+      <div class="ending-text">
+        He was a reader who became an emperor.<br>
+        A general who built museums and wrote laws.<br>
+        A man who walked the streets of Paris at night<br>
+        drinking hot chocolate in disguise.<br><br>
+        He took too many risks in the end.<br>
+        But what an incredible mind.<br>
+        What an incredible journey.
+      </div>
+      <div class="ending-jp">終</div>
+      <div class="ending-note">Napoleon Bonaparte &mdash; 1769&ndash;1821</div>
+    </div>
+
+  </div>
+
+  <script>
+    function startReading() {
+      document.getElementById('cover').style.display = 'none';
+      document.getElementById('reader').classList.add('active');
+      window.scrollTo(0, 0);
+      observePanels();
+    }
+
+    function observePanels() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.15 });
+
+      document.querySelectorAll('.panel-grid, .narration, .chapter-break').forEach(el => {
+        observer.observe(el);
+      });
+    }
+
+    // Keyboard: Enter/Space to start
+    document.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && document.getElementById('cover').style.display !== 'none') {
+        startReading();
+      }
+    });
+  </script>
+
+</body>
+</html>

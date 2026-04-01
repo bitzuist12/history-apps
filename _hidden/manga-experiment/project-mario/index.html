@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Project Mario — A Manga</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #0a0a0a;
+      --dark: #111;
+      --white: #f0efe8;
+      --grey: #888;
+      --dim: #555;
+      --faint: #333;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ---- COVER ---- */
+    .cover {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      background: url('images/spacex-meeting.png') center/cover;
+      opacity: 0.2;
+      filter: contrast(1.4) brightness(0.4);
+    }
+
+    .cover-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 500px;
+      padding: 0 24px;
+    }
+
+    .cover-code {
+      font-size: 11px;
+      letter-spacing: 6px;
+      color: var(--faint);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .cover-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 72px;
+      font-weight: 900;
+      letter-spacing: 12px;
+      line-height: 1;
+      margin-bottom: 6px;
+      text-shadow: 0 0 60px rgba(255,255,255,0.1);
+    }
+
+    .cover-title {
+      font-size: 14px;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      color: var(--grey);
+      margin-bottom: 8px;
+    }
+
+    .cover-sub {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 13px;
+      color: var(--dim);
+      line-height: 1.8;
+      margin-bottom: 40px;
+      font-style: italic;
+    }
+
+    .cover-start {
+      border: 1px solid #333;
+      background: transparent;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cover-start:hover {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    .cover-hint {
+      position: absolute;
+      bottom: 24px;
+      font-size: 10px;
+      color: #222;
+      letter-spacing: 2px;
+    }
+
+    /* ---- MANGA SCROLL ---- */
+    .manga {
+      display: none;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 0 120px;
+    }
+
+    .manga.active { display: block; }
+
+    /* ---- SECTIONS ---- */
+    .section {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ---- CHAPTER BREAK ---- */
+    .ch {
+      text-align: center;
+      padding: 80px 24px 60px;
+      position: relative;
+    }
+
+    .ch::before {
+      content: '';
+      position: absolute;
+      top: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 1px;
+      background: var(--faint);
+    }
+
+    .ch-num {
+      font-size: 10px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 12px;
+    }
+
+    .ch-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      line-height: 1.4;
+    }
+
+    .ch-date {
+      font-size: 11px;
+      color: var(--faint);
+      margin-top: 10px;
+      letter-spacing: 2px;
+    }
+
+    /* ---- PANELS ---- */
+    .panel {
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background: var(--dark);
+    }
+
+    .panel img {
+      width: 100%;
+      display: block;
+      filter: contrast(1.1);
+    }
+
+    .panel-full img {
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+
+    .panel-tall img {
+      aspect-ratio: 3/4;
+      object-fit: cover;
+    }
+
+    .panel-portrait img {
+      aspect-ratio: 2/3;
+      object-fit: cover;
+    }
+
+    .panel-square img {
+      aspect-ratio: 1/1;
+      object-fit: cover;
+    }
+
+    .panel-hero img {
+      aspect-ratio: 16/9;
+      object-fit: cover;
+    }
+
+    /* Two panels side by side */
+    .panel-duo {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px;
+    }
+
+    .panel-duo .panel img {
+      aspect-ratio: 3/4;
+      object-fit: cover;
+    }
+
+    /* ---- TEXT OVERLAYS ---- */
+    .thought {
+      position: absolute;
+      color: var(--white);
+      font-family: 'Noto Serif JP', serif;
+      font-style: italic;
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 220px;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.95), 0 0 40px rgba(0,0,0,0.9);
+      z-index: 5;
+    }
+
+    .speech {
+      position: absolute;
+      background: var(--white);
+      color: var(--black);
+      border-radius: 16px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      max-width: 200px;
+      line-height: 1.4;
+      z-index: 5;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+    }
+
+    .speech::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 20px;
+      border-left: 8px solid transparent;
+      border-right: 8px solid transparent;
+      border-top: 10px solid var(--white);
+    }
+
+    .speech.right::after {
+      left: auto;
+      right: 20px;
+    }
+
+    .sfx {
+      position: absolute;
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 900;
+      font-size: 56px;
+      color: var(--white);
+      text-shadow: 3px 3px 0 var(--black), -1px -1px 0 var(--black);
+      z-index: 5;
+      transform: rotate(-8deg);
+      opacity: 0.85;
+    }
+
+    /* ---- NARRATION BLOCKS ---- */
+    .narr {
+      padding: 44px 40px;
+      text-align: center;
+    }
+
+    .narr-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 17px;
+      line-height: 2.2;
+      color: #bbb;
+    }
+
+    .narr-text em {
+      color: var(--white);
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .narr-text .red {
+      color: #c44;
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    .narr-small {
+      font-size: 11px;
+      color: #444;
+      margin-top: 14px;
+      letter-spacing: 1px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* ---- QUOTE BLOCKS ---- */
+    .quote-block {
+      padding: 36px 40px;
+      border-left: 2px solid #222;
+      margin: 0 24px;
+    }
+
+    .quote-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 16px;
+      font-style: italic;
+      color: #999;
+      line-height: 2;
+    }
+
+    .quote-attr {
+      font-size: 11px;
+      color: #444;
+      margin-top: 12px;
+      letter-spacing: 1px;
+    }
+
+    /* ---- DIVIDER ---- */
+    .divider {
+      text-align: center;
+      padding: 40px 0;
+      color: #222;
+      font-size: 12px;
+      letter-spacing: 8px;
+    }
+
+    /* ---- ENDING ---- */
+    .ending {
+      text-align: center;
+      padding: 80px 32px 60px;
+    }
+
+    .ending-line {
+      width: 40px;
+      height: 1px;
+      background: #222;
+      margin: 0 auto 30px;
+    }
+
+    .ending-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 15px;
+      color: #666;
+      line-height: 2.4;
+    }
+
+    .ending-text em {
+      color: #999;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .ending-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 32px;
+      color: #333;
+      margin-top: 40px;
+      letter-spacing: 8px;
+    }
+
+    .ending-credit {
+      margin-top: 50px;
+      font-size: 10px;
+      color: #222;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 2;
+    }
+
+    /* ---- MOBILE ---- */
+    @media (max-width: 640px) {
+      .cover-jp { font-size: 48px; letter-spacing: 8px; }
+      .cover-title { font-size: 12px; letter-spacing: 6px; }
+      .cover-sub { font-size: 12px; }
+
+      .manga { padding: 0 0 80px; }
+
+      .ch { padding: 60px 20px 40px; }
+      .ch-title { font-size: 21px; }
+
+      .narr { padding: 32px 20px; }
+      .narr-text { font-size: 15px; line-height: 2; }
+
+      .quote-block { margin: 0 16px; padding: 24px 20px; }
+      .quote-text { font-size: 14px; line-height: 1.9; }
+
+      .thought { font-size: 12px; max-width: 160px; }
+      .speech { font-size: 11px; max-width: 160px; padding: 8px 12px; }
+      .sfx { font-size: 36px; }
+
+      .panel-duo { grid-template-columns: 1fr; gap: 2px; }
+      .panel-duo .panel img { aspect-ratio: 3/2; }
+
+      .ending-text { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- COVER -->
+  <div class="cover" id="cover" onclick="start()">
+    <div class="cover-bg"></div>
+    <div class="cover-content">
+      <div class="cover-code">Codename</div>
+      <div class="cover-jp">権力</div>
+      <div class="cover-title">Project Mario</div>
+      <div class="cover-sub">The inside story of how DeepMind's experiments in AI safety governance transformed Demis Hassabis from an idealist into a realist</div>
+      <button class="cover-start">Begin Reading</button>
+    </div>
+    <div class="cover-hint">Based on The Infinity Machine by Sebastian Mallaby</div>
+  </div>
+
+  <!-- MANGA -->
+  <div class="manga" id="manga">
+
+    <!-- ======== CH 1: THE FIRST MEETING ======== -->
+    <div class="section ch">
+      <div class="ch-num">Chapter 01</div>
+      <div class="ch-title">The First Meeting</div>
+      <div class="ch-date">SpaceX Headquarters — August 2015</div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          In the summer of 2015,<br>
+          the most powerful minds in technology<br>
+          gathered for a secret meeting<br>
+          at <em>SpaceX</em>.
+        </div>
+        <div class="narr-small">The world's first AGI safety board.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="panel panel-full">
+        <img src="images/spacex-meeting.png" alt="Tense boardroom at SpaceX">
+        <div class="thought" style="top: 16px; right: 20px;">
+          Musk. Page.<br>Hoffman. Hassabis.<br><br>All in one room.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          The meeting produced<br>
+          <em>no agreements</em>.<br>
+          <em>No conclusions</em>.<br><br>
+          Personal tensions overwhelmed<br>
+          the discussion.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="quote-block">
+        <div class="quote-text">Worse, Musk proceeded to use what he'd learned about DeepMind's progress at the meeting to found OpenAI as a direct rival.</div>
+        <div class="quote-attr">— The Infinity Machine</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          With that attempt at oversight <em>stillborn</em>,<br>
+          Suleyman resolved to create<br>
+          an alternative arrangement.<br><br>
+          He imagined a novel,<br>
+          <em>post-capitalist</em> form of governance.
+        </div>
+      </div>
+    </div>
+
+    <div class="section divider">&#9670; &#9670; &#9670;</div>
+
+    <!-- ======== CH 2: THE PUB ======== -->
+    <div class="section ch">
+      <div class="ch-num">Chapter 02</div>
+      <div class="ch-title">Sunday Evenings</div>
+      <div class="ch-date">A London Pub — 2016</div>
+    </div>
+
+    <div class="section">
+      <div class="panel panel-tall" style="max-width: 500px; margin: 0 auto;">
+        <img src="images/pub-plotting.png" alt="Hassabis and Suleyman plotting at pub">
+        <div class="thought" style="bottom: 24px; left: 20px;">
+          Mint tea.<br>No alcohol.<br>Food ordered at the<br>last moment.<br><br>They talked into<br>the evening.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Most Sunday evenings,<br>
+          Hassabis kept up the old tradition.<br><br>
+          Two North London boys<br>
+          planning to reshape<br>
+          <em>the future of intelligence itself</em>.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Their codename for the talks<br>
+          with Google:<br><br>
+          <em>Project Mario</em>.
+        </div>
+        <div class="narr-small">A 3-3-3 board: three DeepMind, three Alphabet, three independent.</div>
+      </div>
+    </div>
+
+    <div class="section divider">&#9670; &#9670; &#9670;</div>
+
+    <!-- ======== CH 3: THE DINNER ======== -->
+    <div class="section ch">
+      <div class="ch-num">Chapter 03</div>
+      <div class="ch-title">The Vegetarian Curry</div>
+      <div class="ch-date">Pichai's Home, Silicon Valley — January 2017</div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Pichai tried to break the deadlock.<br><br>
+          At a one-on-one dinner at his home,<br>
+          he served Suleyman<br>
+          <em>a vegetarian curry</em><br>
+          and <em>a tasty proposal</em>.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="panel panel-square" style="max-width: 560px; margin: 0 auto;">
+        <img src="images/pichai-dinner.png" alt="Pichai serving curry to Suleyman">
+        <div class="speech" style="top: 14px; left: 14px;">
+          What if DeepMind splits in two?
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Hassabis could pursue AGI<br>
+          as an independent spin-out.<br><br>
+          Suleyman would run<br>
+          all of Google's applied AI<br>
+          from <em>California</em>.
+        </div>
+        <div class="narr-small">Perhaps hoping to drive a wedge between them.</div>
+      </div>
+    </div>
+
+    <div class="section divider">&#9670; &#9670; &#9670;</div>
+
+    <!-- ======== CH 4: THE BILLION ======== -->
+    <div class="section ch">
+      <div class="ch-num">Chapter 04</div>
+      <div class="ch-title">One Billion Dollars</div>
+      <div class="ch-date">Asilomar Hotel, California — January 2017</div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          If Google wouldn't give them<br>
+          the governance they wanted,<br>
+          they would <em>walk out</em>.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="panel panel-full">
+        <img src="images/hoffman-billion.png" alt="Reid Hoffman writing $1 billion on napkin">
+        <div class="speech right" style="top: 12px; right: 16px;">
+          This is the most impactful technology of my lifetime. I'm in.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="quote-block">
+        <div class="quote-text">Showing considerable courage in his convictions, Hoffman agreed to commit more than a quarter of his wealth: an astonishing $1 billion. It was 100 times more than he had pledged to OpenAI.</div>
+        <div class="quote-attr">— Reid Hoffman, at Asilomar</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          <em>"I didn't tell Sam about this."</em><br><br>
+          <em>"I didn't tell Greylock."</em><br><br>
+          Billionaires answer to nobody.
+        </div>
+      </div>
+    </div>
+
+    <div class="section divider">&#9670; &#9670; &#9670;</div>
+
+    <!-- ======== CH 5: AVIEMORE ======== -->
+    <div class="section ch">
+      <div class="ch-num">Chapter 05</div>
+      <div class="ch-title">The Enchanted Forest</div>
+      <div class="ch-date">Scottish Highlands — June 2017</div>
+    </div>
+
+    <div class="section">
+      <div class="panel panel-full">
+        <img src="images/scotland-jets.png" alt="Two jets over Scottish Highlands">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          500 employees.<br>
+          Two chartered jets.<br>
+          The Scottish Highlands.<br><br>
+          The banquet hall was decked out<br>
+          like the enchanted forest of <em>Narnia</em>.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="panel panel-full">
+        <img src="images/aviemore-reveal.png" alt="Suleyman reveals the plan at Aviemore">
+        <div class="sfx" style="top: 12px; left: 24px;">衝撃</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Suleyman put up a slide.<br><br>
+          <em>"DeepMind: A Global Interest Company."</em><br><br>
+          The room went silent.<br>
+          500 people stared at an org chart<br>
+          with two boxes<br>
+          connected by a <em>dotted line</em>.
+        </div>
+        <div class="narr-small">A spin-in AND a spin-out. People's heads were spinning.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Ten days later,<br>
+          Google sent back its position.<br><br>
+          <span class="red">Red lines all over it.</span><br><br>
+          Pichai was nowhere near<br>
+          approving the plan.
+        </div>
+      </div>
+    </div>
+
+    <div class="section divider">&#9670; &#9670; &#9670;</div>
+
+    <!-- ======== CH 6: MUSK ======== -->
+    <div class="section ch">
+      <div class="ch-num">Chapter 06</div>
+      <div class="ch-title">You're a Jackass</div>
+      <div class="ch-date">OpenAI Headquarters — Early 2018</div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Meanwhile, at OpenAI,<br>
+          the same war was playing out.<br><br>
+          Musk wanted <em>absolute control</em>.<br>
+          Altman was maneuvering<br>
+          to push him out.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="quote-block">
+        <div class="quote-text">"You are concerned that Demis could create an AGI dictatorship. So it is a bad idea to create a structure where you could become a dictator if you chose to."</div>
+        <div class="quote-attr">— Ilya Sutskever, email to Elon Musk, September 2017</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Musk proposed that<br>
+          OpenAI should <em>spin into Tesla</em>.<br><br>
+          He was refused.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="panel panel-tall" style="max-width: 500px; margin: 0 auto;">
+        <img src="images/musk-rage.png" alt="Musk storming out of OpenAI meeting">
+        <div class="speech" style="bottom: 20px; left: 16px;">
+          You're a jackass!
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          An intern had asked<br>
+          if speed might be reckless<br>
+          from a safety perspective.<br><br>
+          Musk stormed out<br>
+          of the meeting.
+        </div>
+        <div class="narr-small">He never came back.</div>
+      </div>
+    </div>
+
+    <div class="section divider">&#9670; &#9670; &#9670;</div>
+
+    <!-- ======== CH 7: THE FALL ======== -->
+    <div class="section ch">
+      <div class="ch-num">Chapter 07</div>
+      <div class="ch-title">Coal Drops Yard</div>
+      <div class="ch-date">King's Cross, London — 2019</div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Complaints were filed.<br>
+          An investigation opened.<br>
+          Hassabis recused himself.<br><br>
+          The outside lawyer's report<br>
+          ran to <em>25 pages</em>.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Suleyman was given<br>
+          <em>two hours</em> to decide.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="panel panel-portrait" style="max-width: 480px; margin: 0 auto;">
+        <img src="images/coal-drops-yard.png" alt="Suleyman pacing Coal Drops Yard in the rain">
+        <div class="thought" style="top: 24px; right: 16px;">
+          He left the office<br>and paced furiously<br>through the rain.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          He phoned Marilyn,<br>
+          his girlfriend<br>
+          from the time when his best friend<br>
+          had been <em>George Hassabis</em>.<br><br>
+          Demis's kid brother.
+        </div>
+        <div class="narr-small">Later, he would wish he had called a lawyer instead.</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          He walked back in.<br><br>
+          He accepted the charges.
+        </div>
+      </div>
+    </div>
+
+    <div class="section divider">&#9670; &#9670; &#9670;</div>
+
+    <!-- ======== CH 8: THE HEADLINE ======== -->
+    <div class="section ch">
+      <div class="ch-num">Chapter 08</div>
+      <div class="ch-title">Placed on Leave</div>
+      <div class="ch-date">Mountain View — August 21, 2019</div>
+    </div>
+
+    <div class="section">
+      <div class="panel panel-full">
+        <img src="images/bloomberg-hit.png" alt="Suleyman sees the Bloomberg headline">
+        <div class="thought" style="bottom: 16px; left: 16px;">
+          A message popped<br>up on his screen.<br><br>He put his face<br>in his hands<br>and walked out.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="quote-block">
+        <div class="quote-text">"Google DeepMind Co-Founder Placed on Leave from AI Lab."</div>
+        <div class="quote-attr">— Bloomberg, August 21, 2019</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          He had thought that<br>
+          accepting the complaints<br>
+          would protect his reputation.<br><br>
+          The headline <em>shredded</em><br>
+          that implicit contract.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="quote-block">
+        <div class="quote-text">"Nobody said let him burn, take him down. No one briefed against him. There just wasn't a plan, and they were caught with their pants down."</div>
+        <div class="quote-attr">— A DeepMind colleague</div>
+      </div>
+    </div>
+
+    <div class="section divider">&#9670; &#9670; &#9670;</div>
+
+    <!-- ======== CH 9: IDEALIST TO REALIST ======== -->
+    <div class="section ch">
+      <div class="ch-num">Chapter 09</div>
+      <div class="ch-title">Idealist to Realist</div>
+      <div class="ch-date">2024 — 2025</div>
+    </div>
+
+    <div class="section">
+      <div class="panel panel-hero">
+        <img src="images/idealist-realist.png" alt="Hassabis eyes - idealist vs realist">
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          The exercise had been <em>futile</em>.<br><br>
+          The negotiations achieved nothing.<br>
+          They were <em>bound</em> to achieve nothing.<br>
+          They consumed vast quantities<br>
+          of energy and goodwill.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="quote-block">
+        <div class="quote-text">"Safety isn't about governance structures. Even if you have a governance board, it probably wouldn't do the right thing when it came to the crunch."</div>
+        <div class="quote-attr">— Demis Hassabis</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="quote-block">
+        <div class="quote-text">"So then I thought, why don't I go the other way? Take the energy that was going into the trustless negotiation and put it into creating real trust."</div>
+        <div class="quote-attr">— Demis Hassabis</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="narr">
+        <div class="narr-text">
+          Two North Londoners<br>
+          with immigrant parents<br>
+          now headed AI operations<br>
+          at <em>two American tech giants</em>.<br><br>
+          Although they were rivals,<br>
+          with bitter memories of their parting,<br>
+          they delivered <em>similar verdicts</em>.
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="quote-block">
+        <div class="quote-text">"You have to move from idealist to realist, but hopefully still with your values."</div>
+        <div class="quote-attr">— Demis Hassabis</div>
+      </div>
+    </div>
+
+    <!-- ======== ENDING ======== -->
+    <div class="section ending">
+      <div class="ending-line"></div>
+      <div class="ending-text">
+        The notion that a well-meaning individual<br>
+        had a seat at the table<br>
+        offered a <em>flimsy scaffolding of reassurance</em><br>
+        to an alarmed world.<br><br>
+        But perhaps it was<br>
+        the best comfort available.
+      </div>
+      <div class="ending-kanji">終</div>
+      <div class="ending-credit">
+        Based on The Infinity Machine<br>
+        by Sebastian Mallaby<br><br>
+        Adapted as manga &middot; 2026
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function start() {
+      document.getElementById('cover').style.display = 'none';
+      document.getElementById('manga').classList.add('active');
+      window.scrollTo(0, 0);
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) e.target.classList.add('visible');
+        });
+      }, { threshold: 0.12 });
+
+      document.querySelectorAll('.section').forEach(el => observer.observe(el));
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && document.getElementById('cover').style.display !== 'none') {
+        start();
+      }
+    });
+  </script>
+
+</body>
+</html>

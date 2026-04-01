@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Project Mario — Visual Manga</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      color: #ddd;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---- COVER ---- */
+    .cover {
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      background: url('images/spacex-meeting.png') center/cover;
+      opacity: 0.15;
+      filter: contrast(1.3) brightness(0.4);
+    }
+
+    .cover-inner {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .cover-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: 10px;
+      color: #e8e6df;
+    }
+
+    .cover-title {
+      font-size: 12px;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      color: #666;
+      margin: 8px 0 32px;
+    }
+
+    .cover-btn {
+      border: 1px solid #333;
+      background: transparent;
+      color: #aaa;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px 36px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+    }
+
+    .cover-attr {
+      position: absolute;
+      bottom: 20px;
+      font-size: 9px;
+      color: #222;
+      letter-spacing: 2px;
+    }
+
+    /* ---- MANGA SCROLL ---- */
+    .manga {
+      display: none;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .manga.on { display: block; }
+
+    /* ---- FRAME: each scroll stop ---- */
+    .f {
+      width: 100%;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .f.v {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ---- IMAGE PANELS ---- */
+    .p {
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background: #0a0a0a;
+    }
+
+    .p img {
+      width: 100%;
+      display: block;
+      filter: contrast(1.08);
+    }
+
+    /* Overlay caption: short text ON the image */
+    .cap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 40px 20px 16px;
+      background: linear-gradient(transparent, rgba(0,0,0,0.85));
+      font-family: 'Noto Serif JP', serif;
+      font-size: 13px;
+      color: #ccc;
+      line-height: 1.7;
+      text-align: center;
+    }
+
+    .cap em {
+      color: #fff;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .cap .red {
+      color: #c44;
+      font-weight: 700;
+    }
+
+    /* Top caption */
+    .cap-top {
+      bottom: auto;
+      top: 0;
+      padding: 16px 20px 40px;
+      background: linear-gradient(rgba(0,0,0,0.85), transparent);
+    }
+
+    /* Speech bubble */
+    .bub {
+      position: absolute;
+      background: #e8e6df;
+      color: #111;
+      border-radius: 14px;
+      padding: 10px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      max-width: 200px;
+      line-height: 1.4;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.5);
+    }
+
+    .bub::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 18px;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 8px solid #e8e6df;
+    }
+
+    /* SFX */
+    .sx {
+      position: absolute;
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 900;
+      font-size: 48px;
+      color: #fff;
+      text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+      opacity: 0.8;
+      transform: rotate(-8deg);
+    }
+
+    /* ---- TEXT BREAKERS (minimal) ---- */
+    .txt {
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    .txt-ch {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    .txt-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #ddd;
+      margin-bottom: 6px;
+    }
+
+    .txt-date {
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 2px;
+    }
+
+    /* Quote breaker */
+    .qt {
+      padding: 32px 28px;
+      text-align: center;
+    }
+
+    .qt-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 15px;
+      font-style: italic;
+      color: #888;
+      line-height: 1.9;
+    }
+
+    .qt-text em {
+      color: #ccc;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .qt-attr {
+      font-size: 10px;
+      color: #333;
+      margin-top: 10px;
+      letter-spacing: 1px;
+    }
+
+    /* Divider dot */
+    .dot {
+      text-align: center;
+      padding: 28px 0;
+      color: #1a1a1a;
+      font-size: 14px;
+      letter-spacing: 12px;
+    }
+
+    /* ---- ENDING ---- */
+    .end {
+      padding: 60px 28px 100px;
+      text-align: center;
+    }
+
+    .end-rule {
+      width: 30px;
+      height: 1px;
+      background: #222;
+      margin: 0 auto 24px;
+    }
+
+    .end-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      color: #555;
+      line-height: 2.2;
+    }
+
+    .end-text em {
+      color: #888;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .end-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28px;
+      color: #222;
+      margin-top: 32px;
+      letter-spacing: 6px;
+    }
+
+    .end-credit {
+      font-size: 9px;
+      color: #1a1a1a;
+      margin-top: 40px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 2;
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (min-width: 601px) {
+      .manga { padding: 0 20px; }
+      .p { border-radius: 2px; margin-bottom: 2px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cover" id="cover" onclick="go()">
+    <div class="cover-bg"></div>
+    <div class="cover-inner">
+      <div class="cover-jp">権力</div>
+      <div class="cover-title">Project Mario</div>
+      <button class="cover-btn">Begin</button>
+    </div>
+    <div class="cover-attr">Based on The Infinity Machine by Sebastian Mallaby</div>
+  </div>
+
+  <div class="manga" id="m">
+
+    <!-- PROLOGUE -->
+    <div class="f txt">
+      <div class="txt-ch">Prologue</div>
+      <div class="txt-title">2009</div>
+      <div class="txt-date">London</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/legg-lecture.png" alt="The 2009 lecture">
+      <div class="cap">Shane Legg warned that superintelligent AI could <em>subjugate or annihilate</em> humans. In the audience, Demis Hassabis gripped the armrest.</div>
+    </div></div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 1 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 01</div>
+      <div class="txt-title">The First Meeting</div>
+      <div class="txt-date">SpaceX &mdash; August 2015</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/spacex-meeting.png" alt="SpaceX boardroom">
+      <div class="cap">The world's first AGI safety board. Musk hosted. Page, Hoffman, Hassabis attended. The meeting produced <em>no agreements</em>.</div>
+    </div></div>
+
+    <div class="f qt">
+      <div class="qt-text">Musk used what he learned about DeepMind's progress to found <em>OpenAI</em> as a direct rival.</div>
+    </div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 2 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 02</div>
+      <div class="txt-title">Project Mario</div>
+      <div class="txt-date">London &mdash; 2016</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/pub-plotting.png" alt="Hassabis and Suleyman at the pub">
+      <div class="cap">Every Sunday evening. Mint tea. No alcohol. Two North London boys planning to reshape the future of <em>intelligence itself</em>.</div>
+    </div></div>
+
+    <div class="f"><div class="p">
+      <img src="images/hedge-fund.png" alt="Secret hedge fund">
+      <div class="cap">Hassabis's secret: 20 researchers training high-frequency trading algorithms. He wanted to beat <em>Jim Simons</em>. Google quietly shut it down.</div>
+    </div></div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 3 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 03</div>
+      <div class="txt-title">The Bad Cop</div>
+      <div class="txt-date">London &mdash; November 2016</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/drummond-arrives.png" alt="Drummond arrives">
+      <div class="cap">Google's chief legal officer arrived in London. <em>"Everyone is in agreement on safety. But regarding the spin-out... there are concerns."</em></div>
+    </div></div>
+
+    <div class="f qt">
+      <div class="qt-text">Pichai revealed the steelier side of his personality. AI was <em>strategically important</em> to Google. He would not let it go.</div>
+    </div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 4 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 04</div>
+      <div class="txt-title">Plan B</div>
+      <div class="txt-date">Late 2016</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/war-room.png" alt="Lawyers war room">
+      <div class="cap">Suleyman assembled lawyers, strategists, and bankers. The plan: <em>$5 billion</em> in outside pledges. If Google refused governance &mdash; they would walk out.</div>
+    </div></div>
+
+    <div class="f qt">
+      <div class="qt-text">"It was open to Alphabet to just say: back in your boxes, boys, <em>we own you</em>."</div>
+      <div class="qt-attr">&mdash; One of DeepMind's advisers</div>
+    </div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 5 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 05</div>
+      <div class="txt-title">One Billion Dollars</div>
+      <div class="txt-date">Asilomar, California &mdash; January 2017</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/asilomar-hotel.png" alt="Asilomar Hotel">
+      <div class="cap">A serene seaside refuge on the Monterey Peninsula. Half a century earlier, it laid ground rules for genetic research. Now it was <em>AI's turn</em>.</div>
+    </div></div>
+
+    <div class="f"><div class="p">
+      <img src="images/hoffman-billion.png" alt="Hoffman writes 1 billion on napkin">
+      <div class="cap">Reid Hoffman committed <em>$1 billion</em> &mdash; more than a quarter of his wealth. 100x more than he pledged to OpenAI.</div>
+    </div></div>
+
+    <div class="f qt">
+      <div class="qt-text">"I didn't tell Sam. I didn't tell Greylock. <em>Billionaires answer to nobody.</em>"</div>
+      <div class="qt-attr">&mdash; Reid Hoffman</div>
+    </div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 6 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 06</div>
+      <div class="txt-title">The Vegetarian Curry</div>
+      <div class="txt-date">Silicon Valley &mdash; January 2017</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/pichai-dinner.png" alt="Pichai serves curry">
+      <div class="bub" style="top: 12px; left: 12px;">What if DeepMind splits in two?</div>
+      <div class="cap">Pichai served a vegetarian curry and <em>a tasty proposal</em>. Perhaps hoping to drive a wedge between them.</div>
+    </div></div>
+
+    <div class="f"><div class="p">
+      <img src="images/airport-exhaustion.png" alt="Exhausted at the airport">
+      <div class="cap">Every few weeks, the <em>11-hour flight</em> from London to San Francisco. Another meeting. Then back to re-scramble their body clocks.</div>
+    </div></div>
+
+    <div class="f qt">
+      <div class="qt-text">That summer, the <em>transformer paper</em> appeared. Hassabis was less alert to its potential than he might have been.</div>
+    </div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 7 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 07</div>
+      <div class="txt-title">The Enchanted Forest</div>
+      <div class="txt-date">Scottish Highlands &mdash; June 2017</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/scotland-jets.png" alt="Jets over Scotland">
+      <div class="cap">500 employees. Two chartered jets. A resort near the royal castle of Balmoral. The hall decked out like <em>Narnia</em>.</div>
+    </div></div>
+
+    <div class="f"><div class="p">
+      <img src="images/aviemore-reveal.png" alt="The Aviemore reveal">
+      <div class="sx" style="top: 10px; left: 16px;">衝撃</div>
+      <div class="cap"><em>"DeepMind: A Global Interest Company."</em> Two boxes. One dotted line. 500 people stared in silence.</div>
+    </div></div>
+
+    <div class="f qt">
+      <div class="qt-text">Ten days later, Google sent back its position. <span class="red">Red lines all over it.</span></div>
+    </div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 8 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 08</div>
+      <div class="txt-title">The Mirror War</div>
+      <div class="txt-date">OpenAI &mdash; 2017&ndash;2018</div>
+    </div>
+
+    <div class="f qt">
+      <div class="qt-text">"You are concerned that Demis could create an <em>AGI dictatorship</em>. So it is a bad idea to create a structure where you could become a dictator."</div>
+      <div class="qt-attr">&mdash; Ilya Sutskever to Elon Musk</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/musk-3am.png" alt="Musk at 3:52 AM">
+      <div class="cap-top cap">3:52 AM. <em>"OpenAI is on a path of certain failure relative to Google. Tesla is the only path."</em></div>
+    </div></div>
+
+    <div class="f"><div class="p">
+      <img src="images/musk-rage.png" alt="Musk storms out">
+      <div class="bub" style="bottom: 16px; left: 14px;">You're a jackass!</div>
+      <div class="cap-top cap">An intern asked if speed might be reckless. Musk stormed out. <em>He never came back.</em></div>
+    </div></div>
+
+    <div class="f qt">
+      <div class="qt-text">"Our biggest tool is the moral high ground. <em>It doesn't matter who wins if everyone dies.</em>"</div>
+      <div class="qt-attr">&mdash; Greg Brockman</div>
+    </div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 9 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 09</div>
+      <div class="txt-title">The Unraveling</div>
+      <div class="txt-date">2018</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/alphabet-board.png" alt="Alphabet board presentation">
+      <div class="cap"><em>"An unprecedented technology requires an unprecedented structure."</em> Putin: "The leader in AI will be ruler of the world."</div>
+    </div></div>
+
+    <div class="f"><div class="p">
+      <img src="images/term-sheet.png" alt="$15B term sheet">
+      <div class="cap">Google signed a term sheet. <em>$15 billion</em> guaranteed over a decade. It seemed like victory.</div>
+    </div></div>
+
+    <div class="f qt">
+      <div class="qt-text">Then Apple poached a senior executive. Jeff Dean was promoted. The space in the org chart &mdash; <em>eliminated</em>.</div>
+    </div>
+
+    <div class="f qt">
+      <div class="qt-text">"He was up the cloud in a banana."</div>
+      <div class="qt-attr">&mdash; A colleague on Suleyman</div>
+    </div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 10 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 10</div>
+      <div class="txt-title">Coal Drops Yard</div>
+      <div class="txt-date">King's Cross, London &mdash; 2019</div>
+    </div>
+
+    <div class="f qt">
+      <div class="qt-text">Hassabis liked to say the worst thing in the world was to <em>control someone</em>. But his hatred of domination ran the other way too: he was determined not to <em>be dominated</em>.</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/coal-drops-yard.png" alt="Suleyman in the rain">
+      <div class="cap">Two hours to decide. He paced through the rain. He called Marilyn &mdash; not a lawyer. He walked back in. <em>He accepted the charges.</em></div>
+    </div></div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 11 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 11</div>
+      <div class="txt-title">Placed on Leave</div>
+      <div class="txt-date">August 21, 2019</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/french-beach.png" alt="French beach phone call">
+      <div class="cap">DeepMind's comms director was on a French beach. Her phone rang. Bloomberg would publish in <em>one hour</em>.</div>
+    </div></div>
+
+    <div class="f"><div class="p">
+      <img src="images/bloomberg-hit.png" alt="Face in hands">
+      <div class="cap">A message popped up on his screen. He put his face in his hands and <em>walked out</em>.</div>
+    </div></div>
+
+    <div class="f qt">
+      <div class="qt-text">"Nobody said let him burn. There just wasn't a plan, and they were <em>caught with their pants down</em>."</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/prince-no-court.png" alt="Suleyman alone in VP office">
+      <div class="cap">Google made him a Vice President. He moved to California. <em>A prince without a court.</em> He was not allowed to manage others.</div>
+    </div></div>
+
+    <div class="f dot">&#9670;</div>
+
+    <!-- CH 12 -->
+    <div class="f txt">
+      <div class="txt-ch">Chapter 12</div>
+      <div class="txt-title">Idealist to Realist</div>
+      <div class="txt-date">2024&ndash;2025</div>
+    </div>
+
+    <div class="f"><div class="p">
+      <img src="images/two-paths.png" alt="Two paths">
+      <div class="cap">Hassabis: CEO of <em>Google DeepMind</em>. Suleyman: CEO of <em>Microsoft AI</em>. Two North Londoners. Two tech giants. Bitter memories.</div>
+    </div></div>
+
+    <div class="f"><div class="p">
+      <img src="images/idealist-realist.png" alt="Split eyes">
+      <div class="cap"><em>"You have to move from idealist to realist, but hopefully still with your values."</em></div>
+    </div></div>
+
+    <div class="f qt">
+      <div class="qt-text">"Safety isn't about governance structures. Even if you have a board, it probably wouldn't do the right thing <em>when it came to the crunch</em>."</div>
+      <div class="qt-attr">&mdash; Demis Hassabis</div>
+    </div>
+
+    <!-- ENDING -->
+    <div class="f end">
+      <div class="end-rule"></div>
+      <div class="end-text">
+        They had promised their technology<br>
+        would never be used<br>
+        for weapons or surveillance.<br><br>
+        By 2025, both companies<br>
+        were eager to supply AI<br>
+        to the <em>national security complex</em>.<br><br>
+        A flimsy scaffolding of reassurance<br>
+        to an alarmed world.<br><br>
+        But perhaps the best<br>
+        comfort available.
+      </div>
+      <div class="end-kanji">終</div>
+      <div class="end-credit">
+        Based on The Infinity Machine<br>
+        by Sebastian Mallaby
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function go() {
+      document.getElementById('cover').style.display = 'none';
+      document.getElementById('m').classList.add('on');
+      window.scrollTo(0, 0);
+      const o = new IntersectionObserver(es => {
+        es.forEach(e => { if (e.isIntersecting) e.target.classList.add('v'); });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.f').forEach(el => o.observe(el));
+    }
+    document.addEventListener('keydown', e => {
+      if ((e.key === 'Enter' || e.key === ' ') && document.getElementById('cover').style.display !== 'none') go();
+    });
+  </script>
+
+</body>
+</html>

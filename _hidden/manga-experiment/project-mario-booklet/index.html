@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Project Mario — Booklet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #0a0a0a;
+      --dark: #111;
+      --page: #141414;
+      --white: #e8e6df;
+      --dim: #777;
+      --faint: #333;
+      --gold: #8a7a5a;
+    }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ---- COVER ---- */
+    .cover {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      background: url('../project-mario/images/spacex-meeting.png') center/cover;
+      opacity: 0.15;
+      filter: contrast(1.4) brightness(0.3);
+    }
+
+    .cover-card {
+      position: relative;
+      z-index: 2;
+      width: 400px;
+      max-width: 90vw;
+      background: var(--dark);
+      border: 1px solid #222;
+      padding: 48px 40px;
+      text-align: center;
+    }
+
+    .cover-code {
+      font-size: 10px;
+      letter-spacing: 6px;
+      color: var(--faint);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .cover-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: 8px;
+      margin-bottom: 8px;
+    }
+
+    .cover-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      letter-spacing: 4px;
+      margin-bottom: 8px;
+    }
+
+    .cover-sub {
+      font-size: 11px;
+      color: var(--dim);
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .cover-btn {
+      border: 1px solid #333;
+      background: transparent;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 12px 32px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cover-btn:hover {
+      background: var(--white);
+      color: var(--black);
+    }
+
+    /* ---- READER ---- */
+    .reader {
+      display: none;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .reader.active { display: flex; }
+
+    /* ---- BOOK SPREAD ---- */
+    .spread {
+      display: flex;
+      height: 90vh;
+      max-height: 780px;
+      transition: opacity 0.15s ease;
+    }
+
+    .spread.turning { opacity: 0; }
+
+    .page {
+      width: 46vw;
+      max-width: 500px;
+      height: 100%;
+      background: var(--page);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page-left {
+      border-right: 1px solid #0a0a0a;
+      box-shadow: inset -8px 0 20px -8px rgba(0,0,0,0.4);
+    }
+
+    .page-right {
+      border-left: 1px solid #0a0a0a;
+      box-shadow: inset 8px 0 20px -8px rgba(0,0,0,0.4);
+    }
+
+    .spine {
+      width: 5px;
+      height: 100%;
+      background: linear-gradient(90deg, #000, #1a1a1a, #000);
+      flex-shrink: 0;
+    }
+
+    /* ---- PAGE CONTENT ---- */
+    .pg-img {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .pg-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.05);
+    }
+
+    .pg-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 32px 30px;
+      overflow-y: auto;
+    }
+
+    .pg-ch {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    .pg-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      line-height: 1.3;
+      margin-bottom: 18px;
+      color: var(--white);
+    }
+
+    .pg-body {
+      font-size: 13.5px;
+      line-height: 2;
+      color: #999;
+    }
+
+    .pg-body em {
+      color: var(--white);
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .pg-body .red {
+      color: #b44;
+      font-weight: 600;
+    }
+
+    .pg-small {
+      font-size: 10px;
+      color: #444;
+      margin-top: 14px;
+      letter-spacing: 1px;
+    }
+
+    .pg-quote {
+      border-left: 2px solid #222;
+      padding-left: 16px;
+      margin-top: 16px;
+    }
+
+    .pg-quote-text {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 14px;
+      line-height: 1.8;
+      color: #888;
+    }
+
+    .pg-quote-attr {
+      font-size: 10px;
+      color: #444;
+      margin-top: 8px;
+    }
+
+    /* Overlay text on images */
+    .img-thought {
+      position: absolute;
+      color: var(--white);
+      font-family: 'Noto Serif JP', serif;
+      font-style: italic;
+      font-size: 13px;
+      line-height: 1.7;
+      max-width: 200px;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.95), 0 0 30px rgba(0,0,0,0.9);
+      z-index: 5;
+    }
+
+    .img-speech {
+      position: absolute;
+      background: var(--white);
+      color: var(--black);
+      border-radius: 14px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      max-width: 180px;
+      line-height: 1.4;
+      z-index: 5;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.6);
+    }
+
+    .img-speech::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 18px;
+      border-left: 7px solid transparent;
+      border-right: 7px solid transparent;
+      border-top: 8px solid var(--white);
+    }
+
+    .img-sfx {
+      position: absolute;
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 900;
+      font-size: 48px;
+      color: var(--white);
+      text-shadow: 2px 2px 0 var(--black), -1px -1px 0 var(--black);
+      z-index: 5;
+      opacity: 0.8;
+      transform: rotate(-8deg);
+    }
+
+    /* Page number */
+    .pg-num {
+      position: absolute;
+      bottom: 8px;
+      font-size: 9px;
+      color: #2a2a2a;
+      z-index: 10;
+    }
+
+    .page-left .pg-num { left: 12px; }
+    .page-right .pg-num { right: 12px; }
+
+    /* Ending page */
+    .pg-ending {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 28px;
+      text-align: center;
+    }
+
+    .ending-rule {
+      width: 30px;
+      height: 1px;
+      background: #222;
+      margin-bottom: 24px;
+    }
+
+    .ending-body {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 14px;
+      color: #666;
+      line-height: 2;
+    }
+
+    .ending-body em {
+      color: #999;
+      font-style: normal;
+    }
+
+    .ending-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28px;
+      color: #333;
+      margin-top: 28px;
+      letter-spacing: 6px;
+    }
+
+    .ending-attr {
+      font-size: 9px;
+      color: #222;
+      margin-top: 32px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 2;
+    }
+
+    /* ---- NAV ---- */
+    .nav-zone {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 20%;
+      z-index: 20;
+      cursor: pointer;
+    }
+
+    .nav-zone-left { left: 0; }
+    .nav-zone-right { right: 0; }
+    .nav-zone:hover { background: rgba(255,255,255,0.01); }
+
+    .nav-bar {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 30;
+    }
+
+    .nav-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid #222;
+      border-radius: 50%;
+      background: rgba(10,10,10,0.8);
+      color: #555;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover { border-color: #555; color: var(--white); }
+    .nav-btn.disabled { opacity: 0.15; pointer-events: none; }
+
+    .nav-count {
+      font-size: 9px;
+      color: #333;
+      letter-spacing: 3px;
+    }
+
+    /* ---- MOBILE ---- */
+    @media (max-width: 768px) {
+      .cover-jp { font-size: 40px; }
+      .cover-card { padding: 36px 24px; }
+
+      .spread { flex-direction: column; height: 100vh; }
+      .spine { display: none; }
+
+      .page {
+        width: 100vw;
+        max-width: 100vw;
+        height: 100vh;
+        display: none;
+      }
+
+      .page.mob-active { display: flex; }
+
+      .pg-text { padding: 24px 20px; }
+      .pg-title { font-size: 19px; }
+      .pg-body { font-size: 13px; line-height: 1.9; }
+      .img-thought { font-size: 11px; max-width: 150px; }
+      .img-speech { font-size: 11px; max-width: 150px; }
+
+      .nav-zone { width: 30%; }
+    }
+
+    @media (min-width: 769px) {
+      .page { display: flex !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cover" id="cover" onclick="startBook()">
+    <div class="cover-bg"></div>
+    <div class="cover-card">
+      <div class="cover-code">Codename</div>
+      <div class="cover-jp">権力</div>
+      <div class="cover-title">PROJECT MARIO</div>
+      <div class="cover-sub">How DeepMind's experiments in AI safety governance transformed Demis Hassabis from an idealist into a realist</div>
+      <button class="cover-btn">Open Booklet</button>
+    </div>
+  </div>
+
+  <div class="reader" id="reader">
+    <div class="nav-zone nav-zone-left" onclick="prev()"></div>
+    <div class="nav-zone nav-zone-right" onclick="next()"></div>
+    <div class="spread" id="spread"></div>
+    <div class="nav-bar">
+      <div class="nav-btn" id="btnP" onclick="prev()">&#9664;</div>
+      <div class="nav-count" id="counter"></div>
+      <div class="nav-btn" id="btnN" onclick="next()">&#9654;</div>
+    </div>
+  </div>
+
+  <script>
+    const IMG = '../project-mario/images/';
+
+    const spreads = [
+      // 0: Chapter 1 text + SpaceX panel
+      [
+        { type: 'text', ch: '01', title: 'The First Meeting', body: 'In August 2015, the most powerful minds in technology gathered at <em>SpaceX</em> for a secret meeting — the world\'s first AGI safety board.<br><br>Elon Musk hosted. Google\'s Larry Page, Reid Hoffman, and other luminaries attended.<br><br>The meeting produced <em>no agreements</em>. No conclusions. Personal tensions overwhelmed the discussion.', small: 'SpaceX Headquarters, August 2015' },
+        { type: 'img', src: IMG+'spacex-meeting.png', alt: 'SpaceX boardroom', thought: { text: 'Musk. Page.<br>Hoffman. Hassabis.<br><br>All in one room.', top: '14px', right: '16px' } }
+      ],
+      // 1: Aftermath + Pub
+      [
+        { type: 'text', body: 'Worse, Musk used what he learned about DeepMind\'s progress to found <em>OpenAI</em> as a direct rival.<br><br>With oversight stillborn, Suleyman resolved to create an alternative. He imagined a novel, <em>post-capitalist</em> form of governance.<br><br>Their codename for the talks with Google: <em>Project Mario</em>.', small: 'A 3-3-3 board: three DeepMind, three Alphabet, three independent.' },
+        { type: 'img', src: IMG+'pub-plotting.png', alt: 'Hassabis and Suleyman at the pub', thought: { text: 'Mint tea. No alcohol.<br>Papers spread out.<br><br>Every Sunday evening,<br>plotting the future.', bottom: '20px', left: '14px' } }
+      ],
+      // 2: Pichai dinner + text
+      [
+        { type: 'img', src: IMG+'pichai-dinner.png', alt: 'Pichai serving curry', speech: { text: 'What if DeepMind splits in two?', top: '12px', left: '12px' } },
+        { type: 'text', ch: '02', title: 'The Vegetarian Curry', body: 'Pichai tried to break the deadlock. At a one-on-one dinner at his home, he served Suleyman <em>a vegetarian curry and a tasty proposal</em>.<br><br>Hassabis could spin out his research. Suleyman would run all Google\'s applied AI from California.<br><br>Perhaps hoping to drive a wedge between them.', small: 'Silicon Valley, January 2017' }
+      ],
+      // 3: Hoffman billion
+      [
+        { type: 'text', ch: '03', title: 'One Billion Dollars', body: 'If Google didn\'t give them governance, they would <em>walk out</em>.<br><br>At Asilomar, they sat down with Reid Hoffman. He agreed to commit more than a quarter of his wealth: <em>$1 billion</em>. 100 times more than he\'d pledged to OpenAI.', quote: { text: '"I didn\'t tell Sam about this. I didn\'t tell Greylock. Billionaires answer to nobody."', attr: '— Reid Hoffman' } },
+        { type: 'img', src: IMG+'hoffman-billion.png', alt: 'Hoffman writes 1 billion on napkin' }
+      ],
+      // 4: Scotland + Aviemore
+      [
+        { type: 'img', src: IMG+'scotland-jets.png', alt: 'Jets over Scottish Highlands', full: true },
+        { type: 'text', ch: '04', title: 'The Enchanted Forest', body: '500 employees. Two chartered jets. The Scottish Highlands.<br><br>Suleyman put up a slide: <em>"DeepMind: A Global Interest Company."</em><br><br>An org chart with two boxes connected by a dotted line. The room went silent.', small: 'Aviemore, Scotland — June 2017' }
+      ],
+      // 5: Aviemore panel + Red lines
+      [
+        { type: 'img', src: IMG+'aviemore-reveal.png', alt: 'Aviemore reveal', sfx: { text: '衝撃', top: '10px', left: '16px' } },
+        { type: 'text', body: 'Ten days later, Google sent back its position.<br><br><span class="red">Red lines all over it.</span><br><br>Pichai was nowhere near approving the plan. Hassabis and Suleyman faced walking back the vision they\'d announced to the <em>entire company</em>.<br><br>That same week, at OpenAI, Ilya Sutskever leapt out of his chair. He had just read the <em>transformer paper</em>.', small: 'The crisis hit at the worst possible time.' }
+      ],
+      // 6: Musk
+      [
+        { type: 'text', ch: '05', title: 'You\'re a Jackass', body: 'Meanwhile, the same war played out at OpenAI. Musk wanted absolute control. Altman was maneuvering to push him out.<br><br>Musk proposed OpenAI should <em>spin into Tesla</em>. He was refused.<br><br>An intern asked if speed might be reckless from a safety perspective. <em>"Isn\'t this going back to what you said you didn\'t want to do?"</em>', small: 'OpenAI HQ, early 2018' },
+        { type: 'img', src: IMG+'musk-rage.png', alt: 'Musk storming out', speech: { text: 'You\'re a jackass!', bottom: '20px', left: '14px' } }
+      ],
+      // 7: Coal Drops Yard
+      [
+        { type: 'img', src: IMG+'coal-drops-yard.png', alt: 'Suleyman in the rain at Coal Drops Yard', thought: { text: 'Two hours to decide.<br><br>He called Marilyn,<br>not a lawyer.', top: '20px', right: '14px' } },
+        { type: 'text', ch: '06', title: 'Coal Drops Yard', body: 'Complaints were filed. An investigation opened. The outside lawyer\'s report ran to <em>25 pages</em>.<br><br>Suleyman was given two hours to decide. He paced through Coal Drops Yard in the rain, called his girlfriend — later he wished he had called a lawyer instead.<br><br>He walked back in. He accepted the charges.', small: 'King\'s Cross, London — 2019' }
+      ],
+      // 8: Bloomberg hit
+      [
+        { type: 'text', ch: '07', title: 'Placed on Leave', body: 'On August 21, a message popped up on his screen in Mountain View.<br><br><em>"Google DeepMind Co-Founder Placed on Leave from AI Lab."</em><br><br>He had thought accepting the complaints would protect his reputation. The headline <em>shredded</em> that implicit contract.', quote: { text: '"Nobody said let him burn. There just wasn\'t a plan, and they were caught with their pants down."', attr: '— A DeepMind colleague' } },
+        { type: 'img', src: IMG+'bloomberg-hit.png', alt: 'Suleyman sees the Bloomberg headline' }
+      ],
+      // 9: Idealist to Realist — ending
+      [
+        { type: 'img', src: IMG+'idealist-realist.png', alt: 'Hassabis eyes — idealist vs realist', full: true },
+        { type: 'ending' }
+      ]
+    ];
+
+    let cur = 0;
+    let mobile = window.innerWidth <= 768;
+    let mobSide = 'left';
+
+    function startBook() {
+      document.getElementById('cover').style.display = 'none';
+      document.getElementById('reader').classList.add('active');
+      cur = 0; mobSide = 'left';
+      render();
+    }
+
+    function render() {
+      const el = document.getElementById('spread');
+      const [L, R] = spreads[cur];
+      el.innerHTML = buildPage(L, 'page-left') + '<div class="spine"></div>' + buildPage(R, 'page-right');
+      if (mobile) updateMob();
+      updateNav();
+    }
+
+    function buildPage(d, side) {
+      const mobCls = mobile ? (side === 'page-left' && mobSide === 'left' ? ' mob-active' : '') + (side === 'page-right' && mobSide === 'right' ? ' mob-active' : '') : '';
+      const n = cur * 2 + (side === 'page-left' ? 1 : 2);
+      let inner = '';
+
+      if (d.type === 'text') {
+        inner = '<div class="pg-text">';
+        if (d.ch) inner += `<div class="pg-ch">Chapter ${d.ch}</div>`;
+        if (d.title) inner += `<div class="pg-title">${d.title}</div>`;
+        if (d.body) inner += `<div class="pg-body">${d.body}</div>`;
+        if (d.small) inner += `<div class="pg-small">${d.small}</div>`;
+        if (d.quote) inner += `<div class="pg-quote"><div class="pg-quote-text">${d.quote.text}</div><div class="pg-quote-attr">${d.quote.attr}</div></div>`;
+        inner += '</div>';
+      }
+
+      else if (d.type === 'img') {
+        inner = `<div class="pg-img"><img src="${d.src}" alt="${d.alt}">`;
+        if (d.thought) {
+          const s = Object.entries(d.thought).filter(([k])=>k!=='text').map(([k,v])=>`${k}:${v}`).join(';');
+          inner += `<div class="img-thought" style="${s}">${d.thought.text}</div>`;
+        }
+        if (d.speech) {
+          const s = Object.entries(d.speech).filter(([k])=>k!=='text').map(([k,v])=>`${k}:${v}`).join(';');
+          inner += `<div class="img-speech" style="${s}">${d.speech.text}</div>`;
+        }
+        if (d.sfx) {
+          const s = Object.entries(d.sfx).filter(([k])=>k!=='text').map(([k,v])=>`${k}:${v}`).join(';');
+          inner += `<div class="img-sfx" style="${s}">${d.sfx.text}</div>`;
+        }
+        inner += '</div>';
+      }
+
+      else if (d.type === 'ending') {
+        inner = '<div class="pg-ending"><div class="ending-rule"></div>';
+        inner += '<div class="ending-body">The notion that a well-meaning individual had a seat at the table offered a <em>flimsy scaffolding of reassurance</em> to an alarmed world.<br><br>But perhaps it was the best comfort available.</div>';
+        inner += '<div class="ending-kanji">終</div>';
+        inner += '<div class="ending-attr">Based on The Infinity Machine<br>by Sebastian Mallaby</div>';
+        inner += '</div>';
+      }
+
+      return `<div class="page ${side}${mobCls}">${inner}<div class="pg-num">${n}</div></div>`;
+    }
+
+    function updateMob() {
+      document.querySelectorAll('.page').forEach(p => {
+        p.classList.remove('mob-active');
+        if (p.classList.contains('page-left') && mobSide === 'left') p.classList.add('mob-active');
+        if (p.classList.contains('page-right') && mobSide === 'right') p.classList.add('mob-active');
+      });
+    }
+
+    function next() {
+      if (mobile && mobSide === 'left') { mobSide = 'right'; turn(() => updateMob()); updateNav(); return; }
+      if (cur >= spreads.length - 1) return;
+      mobSide = 'left'; cur++;
+      turn(() => render());
+    }
+
+    function prev() {
+      if (mobile && mobSide === 'right') { mobSide = 'left'; turn(() => updateMob()); updateNav(); return; }
+      if (cur <= 0) return;
+      mobSide = 'right'; cur--;
+      turn(() => render());
+    }
+
+    function turn(cb) {
+      const s = document.getElementById('spread');
+      s.classList.add('turning');
+      setTimeout(() => { cb(); s.classList.remove('turning'); }, 150);
+    }
+
+    function updateNav() {
+      const total = spreads.length * 2;
+      const pg = cur * 2 + (mobSide === 'right' ? 2 : 1);
+      document.getElementById('counter').textContent = mobile ? `${pg} / ${total}` : `${cur*2+1}–${cur*2+2} / ${total}`;
+      const atStart = cur === 0 && (mobile ? mobSide === 'left' : true);
+      const atEnd = cur === spreads.length - 1 && (mobile ? mobSide === 'right' : true);
+      document.getElementById('btnP').className = 'nav-btn' + (atStart ? ' disabled' : '');
+      document.getElementById('btnN').className = 'nav-btn' + (atEnd ? ' disabled' : '');
+    }
+
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('cover').style.display !== 'none') { if (e.key === 'Enter' || e.key === ' ') startBook(); return; }
+      if (e.key === 'ArrowRight' || e.key === ' ') next();
+      if (e.key === 'ArrowLeft') prev();
+    });
+
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const d = e.changedTouches[0].clientX - tx;
+      if (Math.abs(d) > 50) { d < 0 ? next() : prev(); }
+    }, { passive: true });
+
+    window.addEventListener('resize', () => {
+      const was = mobile; mobile = window.innerWidth <= 768;
+      if (was !== mobile) { mobSide = 'left'; render(); }
+    });
+  </script>
+
+</body>
+</html>

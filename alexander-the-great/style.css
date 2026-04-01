@@ -765,57 +765,195 @@ body {
 }
 
 @media (max-width: 768px) {
+
+  /* Book becomes a vertical scrollable card */
   .book {
     flex-direction: column;
-    width: 96vw;
-    max-width: 520px;
+    width: 100vw;
+    max-width: 100vw;
     height: auto;
+    min-height: auto;
+    padding-bottom: 60px;
   }
 
+  /* Hide spine on mobile */
+  .book-spine { display: none; }
+
+  /* Pages stack vertically, full width */
   .page {
     width: 100%;
-    min-height: 500px;
+    min-height: auto;
     height: auto;
+    padding: 28px 20px 32px;
+    overflow: visible;
   }
 
   .page-left {
-    border-radius: 12px 12px 0 0;
-    box-shadow: 0 -5px 15px var(--shadow-soft);
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--page-cream);
+    border-bottom: 3px solid var(--spine-color);
   }
 
   .page-right {
-    border-radius: 0 0 12px 12px;
-    box-shadow: 0 5px 15px var(--shadow-soft);
+    border-radius: 0;
+    box-shadow: none;
+    background: var(--page-cream);
   }
 
-  .book-spine {
-    width: 100%;
-    height: 10px;
-    top: auto;
-    left: 0;
-    transform: none;
-    background: linear-gradient(180deg, var(--spine-dark), var(--spine-color), var(--spine-dark));
+  /* Page numbers centered */
+  .page-number {
+    position: relative;
+    text-align: center;
+    bottom: auto;
+    left: auto;
+    right: auto;
+    margin-top: 16px;
   }
 
+  /* Cover scales down */
   .book-cover {
-    width: 90vw;
+    width: 92vw;
     max-width: 400px;
-    height: 560px;
+    height: auto;
+    min-height: 480px;
+    aspect-ratio: 3/4;
   }
 
   .cover-content h1 {
-    font-size: 40px;
+    font-size: 36px;
   }
 
+  .cover-content h1 .the {
+    font-size: 24px;
+  }
+
+  .cover-subtitle {
+    font-size: 15px;
+  }
+
+  .cover-icon {
+    font-size: 48px;
+  }
+
+  .cover-ornament {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Nav buttons fixed at bottom */
   .nav-btn {
+    position: fixed;
     top: auto;
-    bottom: -52px;
+    bottom: 16px;
+    transform: none;
+    z-index: 100;
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
   }
 
-  .nav-prev { left: 30%; }
-  .nav-next { right: 30%; }
+  .nav-prev { left: 20px; }
+  .nav-next { right: 20px; }
 
-  .page-indicator { bottom: -70px; }
+  /* Page indicator fixed at bottom center */
+  .page-indicator {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+  }
+
+  /* Chapter headers */
+  .chapter-header h2 {
+    font-size: 24px;
+  }
+
+  /* Cards breathe */
+  .infographic-card {
+    padding: 14px 14px;
+    gap: 10px;
+  }
+
+  .card-icon { font-size: 24px; width: 32px; }
+  .card-title { font-size: 14px; }
+  .card-text { font-size: 12.5px; }
+
+  /* Stats row */
+  .infographic-stat-row {
+    flex-wrap: wrap;
+  }
+
+  .stat-bubble {
+    min-width: 80px;
+  }
+
+  .stat-number { font-size: 20px; }
+  .stat-label { font-size: 9px; }
+
+  /* Illustrations full width */
+  .illustration {
+    height: 200px;
+  }
+
+  /* Big quote */
+  .big-quote-block {
+    padding: 18px;
+  }
+
+  .big-quote-text {
+    font-size: 17px;
+  }
+
+  /* Map */
+  .map-container {
+    padding: 10px;
+  }
+
+  /* Legacy grid stays 2 cols but tighter */
+  .legacy-grid {
+    gap: 8px;
+  }
+
+  .legacy-item {
+    padding: 10px;
+  }
+
+  .legacy-icon { font-size: 24px; }
+  .legacy-title { font-size: 12px; }
+  .legacy-text { font-size: 10px; }
+
+  /* End card */
+  .end-card {
+    padding: 18px;
+  }
+
+  .end-card h3 { font-size: 20px; }
+
+  /* Quote */
+  .quote-text { font-size: 14px; }
+
+  /* Timeline */
+  .timeline-item { font-size: 12px; }
+  .timeline-year { min-width: 48px; font-size: 12px; }
+
+  /* DYK */
+  .dyk-item { font-size: 12px; }
+
+  /* Fun fact */
+  .fun-fact { font-size: 12.5px; }
+}
+
+/* Small phones */
+@media (max-width: 380px) {
+  .page { padding: 20px 16px 28px; }
+  .chapter-header h2 { font-size: 20px; }
+  .cover-content h1 { font-size: 30px; }
+  .big-quote-text { font-size: 15px; }
+  .infographic-stat-row { flex-direction: column; gap: 8px; }
+  .stat-bubble { min-width: 100%; }
 }
 
 /* Page turn animation */

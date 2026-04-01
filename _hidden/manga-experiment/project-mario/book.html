@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Project Mario — Manga Book</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      color: #ccc;
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ---- COVER ---- */
+    .cover {
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      background: url('images/spacex-meeting.png') center/cover;
+      opacity: 0.12;
+      filter: contrast(1.4) brightness(0.3);
+    }
+
+    .cover-inner {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .cover-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 12px;
+      color: #e0ddd6;
+    }
+
+    .cover-title {
+      font-size: 13px;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      color: #555;
+      margin: 8px 0 6px;
+    }
+
+    .cover-sub {
+      font-size: 11px;
+      color: #333;
+      line-height: 1.7;
+      max-width: 360px;
+      margin: 0 auto 36px;
+      font-style: italic;
+    }
+
+    .cover-btn {
+      border: 1px solid #333;
+      background: transparent;
+      color: #888;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cover-btn:hover { background: #e0ddd6; color: #000; }
+
+    .cover-hint {
+      position: absolute;
+      bottom: 16px;
+      font-size: 9px;
+      color: #1a1a1a;
+      letter-spacing: 2px;
+    }
+
+    /* ---- READER ---- */
+    .reader {
+      display: none;
+      height: 100vh;
+      height: 100dvh;
+      position: relative;
+    }
+
+    .reader.on {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ---- PAGE ---- */
+    .page-frame {
+      width: 92vw;
+      max-width: 520px;
+      height: 90vh;
+      height: 90dvh;
+      max-height: 860px;
+      background: #0a0a0a;
+      border: 1px solid #151515;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: opacity 0.15s ease;
+    }
+
+    .page-frame.turning { opacity: 0; }
+
+    /* Image area */
+    .pg-img {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: #080808;
+      min-height: 0;
+    }
+
+    .pg-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.05);
+    }
+
+    /* Speech bubble on image */
+    .pg-bub {
+      position: absolute;
+      background: #e8e6df;
+      color: #111;
+      border-radius: 14px;
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      max-width: 180px;
+      line-height: 1.4;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.6);
+    }
+
+    .pg-bub::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 16px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #e8e6df;
+    }
+
+    /* SFX on image */
+    .pg-sfx {
+      position: absolute;
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 900;
+      font-size: 44px;
+      color: #fff;
+      text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+      opacity: 0.8;
+      transform: rotate(-8deg);
+    }
+
+    /* Caption strip below image */
+    .pg-cap {
+      flex-shrink: 0;
+      padding: 14px 18px;
+      background: #0a0a0a;
+      border-top: 1px solid #151515;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #999;
+      text-align: center;
+    }
+
+    .pg-cap em {
+      color: #ddd;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .pg-cap .red {
+      color: #b44;
+      font-weight: 600;
+    }
+
+    /* ---- TEXT-ONLY PAGES ---- */
+    .pg-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 28px;
+      text-align: center;
+    }
+
+    .pg-act {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    .pg-ch {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .pg-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ddd;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .pg-date {
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 2px;
+    }
+
+    .pg-narr {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 15px;
+      line-height: 2.2;
+      color: #888;
+      max-width: 380px;
+    }
+
+    .pg-narr em {
+      color: #ddd;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .pg-narr .red {
+      color: #b44;
+      font-weight: 700;
+    }
+
+    .pg-quote {
+      border-left: 2px solid #1a1a1a;
+      padding-left: 16px;
+      text-align: left;
+      max-width: 360px;
+    }
+
+    .pg-quote-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      font-style: italic;
+      color: #777;
+      line-height: 1.9;
+    }
+
+    .pg-quote-text em {
+      color: #bbb;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .pg-quote-attr {
+      font-size: 9px;
+      color: #333;
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    /* Ending */
+    .pg-ending {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .end-rule {
+      width: 30px;
+      height: 1px;
+      background: #1a1a1a;
+      margin-bottom: 24px;
+    }
+
+    .end-body {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      color: #555;
+      line-height: 2.2;
+    }
+
+    .end-body em {
+      color: #888;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .end-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28px;
+      color: #222;
+      margin-top: 30px;
+      letter-spacing: 6px;
+    }
+
+    .end-attr {
+      font-size: 9px;
+      color: #1a1a1a;
+      margin-top: 36px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 2;
+    }
+
+    /* ---- PAGE NUMBER ---- */
+    .pg-num {
+      position: absolute;
+      bottom: 6px;
+      right: 10px;
+      font-size: 9px;
+      color: #222;
+      z-index: 10;
+    }
+
+    /* ---- NAV ---- */
+    .nav-left, .nav-right {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 28%;
+      z-index: 20;
+      cursor: pointer;
+    }
+
+    .nav-left { left: 0; }
+    .nav-right { right: 0; }
+
+    .nav-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 30;
+    }
+
+    .nav-btn {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #1a1a1a;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      color: #444;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover { border-color: #444; color: #aaa; }
+    .nav-btn.off { opacity: 0.15; pointer-events: none; }
+
+    .nav-ct {
+      font-size: 9px;
+      color: #222;
+      letter-spacing: 3px;
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 540px) {
+      .page-frame {
+        width: 100vw;
+        max-width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        max-height: none;
+        border: none;
+      }
+
+      .pg-cap { padding: 12px 16px; font-size: 12px; }
+      .pg-title { font-size: 21px; }
+      .pg-narr { font-size: 14px; }
+      .pg-text { padding: 28px 20px; }
+      .nav-left, .nav-right { width: 30%; }
+      .cover-jp { font-size: 48px; letter-spacing: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cover" id="cover" onclick="startBook()">
+    <div class="cover-bg"></div>
+    <div class="cover-inner">
+      <div class="cover-jp">権力</div>
+      <div class="cover-title">Project Mario</div>
+      <div class="cover-sub">How DeepMind's experiments in AI safety governance transformed Demis Hassabis from an idealist into a realist</div>
+      <button class="cover-btn">Open Book</button>
+    </div>
+    <div class="cover-hint">Based on The Infinity Machine by Sebastian Mallaby</div>
+  </div>
+
+  <div class="reader" id="reader">
+    <div class="nav-left" onclick="prev()"></div>
+    <div class="nav-right" onclick="next()"></div>
+    <div class="page-frame" id="page"></div>
+    <div class="nav-bar">
+      <div class="nav-btn" id="bp" onclick="prev()">&#9664;</div>
+      <div class="nav-ct" id="ct"></div>
+      <div class="nav-btn" id="bn" onclick="next()">&#9654;</div>
+    </div>
+  </div>
+
+  <script>
+    const I = 'images/';
+    const pages = [
+
+      // ===== ACT I: THE DREAM =====
+      { type: 'text', act: 'Act I', ch: 'Prologue', title: 'The Dream', date: '2009' },
+
+      { type: 'img', src: I+'legg-lecture.png',
+        cap: 'Shane Legg warned that superintelligent computers could <em>subjugate or annihilate</em> humans. In the audience, Demis Hassabis gripped the armrest. They would found DeepMind together.' },
+
+      { type: 'text', ch: 'Chapter 01', title: 'The First Meeting', date: 'SpaceX \u2014 August 2015' },
+
+      { type: 'img', src: I+'spacex-meeting.png',
+        cap: 'The world\u2019s first AGI safety board. Musk hosted. Larry Page, Reid Hoffman, Hassabis, Suleyman attended.' },
+
+      { type: 'text', narr: 'The meeting produced <em>no agreements</em>. No conclusions.<br><br>Personal tensions \u2014 especially between Musk and Larry Page \u2014 overwhelmed the discussion.<br><br>Worse, Musk used what he learned to found <em>OpenAI</em> as a direct rival.' },
+
+      // ===== ACT II: THE FIGHT =====
+      { type: 'text', act: 'Act II', ch: 'Chapter 02', title: 'Project Mario', date: 'London \u2014 2016' },
+
+      { type: 'img', src: I+'pub-plotting.png',
+        cap: 'Every Sunday evening. Mint tea. No alcohol. Two North London boys \u2014 one Greek-Cypriot, one Bangladeshi \u2014 planning to reshape <em>the future of intelligence</em>.' },
+
+      { type: 'img', src: I+'hedge-fund.png',
+        cap: 'Hassabis\u2019s secret: 20 researchers training trading algorithms. He wanted to beat Jim Simons. <em>Google quietly shut it down.</em>' },
+
+      { type: 'text', ch: 'Chapter 03', title: 'The Bad Cop', date: 'London \u2014 November 2016' },
+
+      { type: 'img', src: I+'drummond-arrives.png',
+        cap: 'Google\u2019s chief legal officer arrived in London. <em>\u201CEveryone is in agreement on safety. But regarding the spin-out\u2026 there are concerns.\u201D</em>',
+        bub: { text: 'There are concerns.', top: '12px', right: '12px' } },
+
+      { type: 'text', narr: 'Pichai revealed the steelier side of his personality.<br><br>AI was destined to become <em>strategically important</em> to Google\u2019s flagship products.<br><br>He would not let it go.' },
+
+      { type: 'text', ch: 'Chapter 04', title: 'Plan B', date: 'Late 2016' },
+
+      { type: 'img', src: I+'war-room.png',
+        cap: 'Suleyman assembled lawyers, strategists, and bankers. The plan: <em>$5 billion</em> in outside pledges. If Google refused governance \u2014 they would walk out.' },
+
+      { type: 'text', quote: { text: '\u201CIt was open to Alphabet to just say: back in your boxes, boys, <em>we own you</em>, you\u2019ll do what we say.\u201D', attr: '\u2014 One of DeepMind\u2019s advisers' } },
+
+      { type: 'text', ch: 'Chapter 05', title: 'One Billion Dollars', date: 'Asilomar, California \u2014 January 2017' },
+
+      { type: 'img', src: I+'asilomar-hotel.png',
+        cap: 'The Asilomar Hotel. Half a century earlier, it laid ground rules for genetic research. Now, after <em>AlphaGo\u2019s</em> shock victory, it was AI\u2019s turn.' },
+
+      { type: 'img', src: I+'hoffman-billion.png',
+        cap: 'Reid Hoffman committed <em>$1 billion</em> \u2014 more than a quarter of his wealth. 100\u00D7 more than he pledged to OpenAI.' },
+
+      { type: 'text', quote: { text: '\u201CI didn\u2019t tell Sam. I didn\u2019t tell Greylock.<br><em>Billionaires answer to nobody.</em>\u201D', attr: '\u2014 Reid Hoffman' } },
+
+      { type: 'text', ch: 'Chapter 06', title: 'The Vegetarian Curry', date: 'Silicon Valley \u2014 January 2017' },
+
+      { type: 'img', src: I+'pichai-dinner.png',
+        cap: 'Pichai served a vegetarian curry and <em>a tasty proposal</em>. What if DeepMind splits in two? Perhaps hoping to drive a wedge between them.',
+        bub: { text: 'What if it splits in two?', top: '10px', left: '10px' } },
+
+      { type: 'img', src: I+'airport-exhaustion.png',
+        cap: 'Every few weeks, the <em>11-hour flight</em> from London to San Francisco. Another meeting. Then back to re-scramble their body clocks.' },
+
+      { type: 'text', narr: 'That summer, the <em>transformer paper</em> appeared. Hassabis was less alert to its potential than he might have been.' },
+
+      // ===== AVIEMORE =====
+      { type: 'text', ch: 'Chapter 07', title: 'The Enchanted Forest', date: 'Scottish Highlands \u2014 June 2017' },
+
+      { type: 'img', src: I+'scotland-jets.png',
+        cap: '500 employees. Two chartered jets. A resort near the royal castle of Balmoral. The banquet hall decked out like <em>Narnia</em>.' },
+
+      { type: 'img', src: I+'aviemore-reveal.png',
+        cap: '<em>\u201CDeepMind: A Global Interest Company.\u201D</em> Two boxes. One dotted line. 500 people stared in silence.',
+        sfx: { text: '\u885D\u6483', top: '8px', left: '14px' } },
+
+      { type: 'text', narr: 'Ten days later, Google sent back its position.<br><br><span class="red">Red lines all over it.</span><br><br>That same week, Ilya Sutskever leapt out of his chair. He had just read the <em>transformer paper</em>.' },
+
+      // ===== ACT III: THE PARALLEL WAR =====
+      { type: 'text', act: 'Act III', ch: 'Chapter 08', title: 'The Mirror War', date: 'OpenAI \u2014 2017\u20132018' },
+
+      { type: 'text', quote: { text: '\u201CYou are concerned that Demis could create an <em>AGI dictatorship</em>. So it is a bad idea to create a structure where you could become a dictator.\u201D', attr: '\u2014 Ilya Sutskever, email to Elon Musk' } },
+
+      { type: 'img', src: I+'musk-3am.png',
+        cap: '3:52 AM. <em>\u201COpenAI is on a path of certain failure relative to Google. Tesla is the only path.\u201D</em>' },
+
+      { type: 'img', src: I+'musk-rage.png',
+        cap: 'An intern asked if speed might be reckless. <em>\u201CYou\u2019re a jackass!\u201D</em> Musk stormed out. He never came back.',
+        bub: { text: 'You\u2019re a jackass!', bottom: '80px', left: '12px' } },
+
+      { type: 'text', quote: { text: '\u201COur biggest tool is the moral high ground. <em>It doesn\u2019t matter who wins if everyone dies.</em>\u201D', attr: '\u2014 Greg Brockman' } },
+
+      { type: 'text', ch: 'Chapter 09', title: 'The Unraveling', date: '2018' },
+
+      { type: 'img', src: I+'alphabet-board.png',
+        cap: '<em>\u201CAn unprecedented technology requires an unprecedented structure.\u201D</em> Putin: \u201CThe leader in AI will be ruler of the world.\u201D' },
+
+      { type: 'img', src: I+'term-sheet.png',
+        cap: 'Google signed a term sheet. <em>$15 billion</em> guaranteed over a decade. After two years of negotiations, it seemed like victory.' },
+
+      { type: 'text', narr: 'Then Apple poached a senior executive. Jeff Dean was promoted. The space in the org chart that Suleyman would occupy \u2014 <em>eliminated</em>.<br><br>Everything collapsed.' },
+
+      // ===== ACT IV: THE FALL =====
+      { type: 'text', act: 'Act IV', ch: 'Chapter 10', title: 'Coal Drops Yard', date: 'London \u2014 2019' },
+
+      { type: 'text', narr: 'Hassabis liked to say the worst thing in the world was to <em>control someone</em>.<br><br>But his hatred of domination ran the other way too: he was determined not to <em>be dominated</em>.' },
+
+      { type: 'img', src: I+'coal-drops-yard.png',
+        cap: 'Two hours to decide. He paced through the rain at Coal Drops Yard. He called Marilyn \u2014 not a lawyer. He walked back in. <em>He accepted the charges.</em>' },
+
+      { type: 'text', ch: 'Chapter 11', title: 'Placed on Leave', date: 'August 21, 2019' },
+
+      { type: 'img', src: I+'french-beach.png',
+        cap: 'DeepMind\u2019s comms director was on a French beach. Her phone rang. Bloomberg would publish in <em>one hour</em>.' },
+
+      { type: 'img', src: I+'bloomberg-hit.png',
+        cap: 'A message on his screen in Mountain View. He put his face in his hands and <em>walked out</em>.' },
+
+      { type: 'text', quote: { text: '\u201CNobody said let him burn. There just wasn\u2019t a plan, and they were <em>caught with their pants down</em>.\u201D', attr: '\u2014 A DeepMind colleague' } },
+
+      { type: 'img', src: I+'prince-no-court.png',
+        cap: 'Google made him a Vice President. He moved to California. <em>A prince without a court.</em> He was not allowed to manage others.' },
+
+      // ===== ACT V: THE VERDICT =====
+      { type: 'text', act: 'Act V', ch: 'Chapter 12', title: 'Idealist to Realist', date: '2024\u20132025' },
+
+      { type: 'img', src: I+'two-paths.png',
+        cap: 'Hassabis: CEO of <em>Google DeepMind</em>. Suleyman: CEO of <em>Microsoft AI</em>. Two North Londoners. Two tech giants. Bitter memories.' },
+
+      { type: 'text', quote: { text: '\u201CSafety isn\u2019t about governance structures. Even if you have a board, it probably wouldn\u2019t do the right thing <em>when it came to the crunch</em>.\u201D', attr: '\u2014 Demis Hassabis' } },
+
+      { type: 'img', src: I+'idealist-realist.png',
+        cap: '<em>\u201CYou have to move from idealist to realist, but hopefully still with your values.\u201D</em>' },
+
+      { type: 'text', quote: { text: '\u201CTake the energy going into the trustless negotiation and put it into creating <em>real trust</em>. You can\u2019t just talk about trust. You have to earn it.\u201D', attr: '\u2014 Demis Hassabis' } },
+
+      // ENDING
+      { type: 'ending' }
+    ];
+
+    let cur = 0;
+
+    function startBook() {
+      document.getElementById('cover').style.display = 'none';
+      document.getElementById('reader').classList.add('on');
+      cur = 0;
+      render();
+    }
+
+    function render() {
+      const el = document.getElementById('page');
+      const d = pages[cur];
+      let html = '';
+
+      if (d.type === 'img') {
+        html += '<div class="pg-img">';
+        html += `<img src="${d.src}" alt="">`;
+        if (d.bub) {
+          const s = Object.entries(d.bub).filter(([k])=>k!=='text').map(([k,v])=>`${k}:${v}`).join(';');
+          html += `<div class="pg-bub" style="${s}">${d.bub.text}</div>`;
+        }
+        if (d.sfx) {
+          const s = Object.entries(d.sfx).filter(([k])=>k!=='text').map(([k,v])=>`${k}:${v}`).join(';');
+          html += `<div class="pg-sfx" style="${s}">${d.sfx.text}</div>`;
+        }
+        html += '</div>';
+        if (d.cap) html += `<div class="pg-cap">${d.cap}</div>`;
+      }
+
+      else if (d.type === 'text') {
+        html += '<div class="pg-text">';
+        if (d.act) html += `<div class="pg-act">${d.act}</div>`;
+        if (d.ch) html += `<div class="pg-ch">${d.ch}</div>`;
+        if (d.title) html += `<div class="pg-title">${d.title}</div>`;
+        if (d.date) html += `<div class="pg-date">${d.date}</div>`;
+        if (d.narr) html += `<div class="pg-narr">${d.narr}</div>`;
+        if (d.quote) {
+          html += '<div class="pg-quote">';
+          html += `<div class="pg-quote-text">${d.quote.text}</div>`;
+          if (d.quote.attr) html += `<div class="pg-quote-attr">${d.quote.attr}</div>`;
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+
+      else if (d.type === 'ending') {
+        html += '<div class="pg-ending">';
+        html += '<div class="end-rule"></div>';
+        html += '<div class="end-body">They had promised their technology<br>would never be used<br>for weapons or surveillance.<br><br>By 2025, both companies were eager<br>to supply AI to the<br><em>national security complex</em>.<br><br>A flimsy scaffolding of reassurance<br>to an alarmed world.<br><br>But perhaps the best<br>comfort available.</div>';
+        html += '<div class="end-kanji">\u7D42</div>';
+        html += '<div class="end-attr">Based on The Infinity Machine<br>by Sebastian Mallaby</div>';
+        html += '</div>';
+      }
+
+      html += `<div class="pg-num">${cur + 1}</div>`;
+      el.innerHTML = html;
+      updateNav();
+    }
+
+    function next() {
+      if (cur >= pages.length - 1) return;
+      cur++;
+      turn();
+    }
+
+    function prev() {
+      if (cur <= 0) return;
+      cur--;
+      turn();
+    }
+
+    function turn() {
+      const el = document.getElementById('page');
+      el.classList.add('turning');
+      setTimeout(() => { render(); el.classList.remove('turning'); }, 150);
+    }
+
+    function updateNav() {
+      document.getElementById('ct').textContent = `${cur + 1} / ${pages.length}`;
+      document.getElementById('bp').className = 'nav-btn' + (cur === 0 ? ' off' : '');
+      document.getElementById('bn').className = 'nav-btn' + (cur === pages.length - 1 ? ' off' : '');
+    }
+
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('cover').style.display !== 'none') {
+        if (e.key === 'Enter' || e.key === ' ') startBook();
+        return;
+      }
+      if (e.key === 'ArrowRight' || e.key === ' ') next();
+      if (e.key === 'ArrowLeft') prev();
+    });
+
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const d = e.changedTouches[0].clientX - tx;
+      if (Math.abs(d) > 50) { d < 0 ? next() : prev(); }
+    }, { passive: true });
+  </script>
+
+</body>
+</html>

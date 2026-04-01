@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Project Mario — Manga Book (Expanded)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      color: #ccc;
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ---- COVER ---- */
+    .cover {
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      background: url('images/spacex-meeting.png') center/cover;
+      opacity: 0.12;
+      filter: contrast(1.4) brightness(0.3);
+    }
+
+    .cover-inner {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .cover-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 12px;
+      color: #e0ddd6;
+    }
+
+    .cover-title {
+      font-size: 13px;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      color: #555;
+      margin: 8px 0 6px;
+    }
+
+    .cover-sub {
+      font-size: 11px;
+      color: #333;
+      line-height: 1.7;
+      max-width: 360px;
+      margin: 0 auto 36px;
+      font-style: italic;
+    }
+
+    .cover-btn {
+      border: 1px solid #333;
+      background: transparent;
+      color: #888;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cover-btn:hover { background: #e0ddd6; color: #000; }
+
+    .cover-hint {
+      position: absolute;
+      bottom: 16px;
+      font-size: 9px;
+      color: #1a1a1a;
+      letter-spacing: 2px;
+    }
+
+    /* ---- READER ---- */
+    .reader {
+      display: none;
+      height: 100vh;
+      height: 100dvh;
+      position: relative;
+    }
+
+    .reader.on {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ---- PAGE ---- */
+    .page-frame {
+      width: 92vw;
+      max-width: 520px;
+      height: 90vh;
+      height: 90dvh;
+      max-height: 860px;
+      background: #0a0a0a;
+      border: 1px solid #151515;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: opacity 0.15s ease;
+    }
+
+    .page-frame.turning { opacity: 0; }
+
+    /* Image area */
+    .pg-img {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: #080808;
+      min-height: 0;
+    }
+
+    .pg-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.05);
+    }
+
+    /* Speech bubble on image */
+    .pg-bub {
+      position: absolute;
+      background: #e8e6df;
+      color: #111;
+      border-radius: 14px;
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      max-width: 180px;
+      line-height: 1.4;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.6);
+    }
+
+    .pg-bub::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 16px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #e8e6df;
+    }
+
+    /* SFX on image */
+    .pg-sfx {
+      position: absolute;
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 900;
+      font-size: 44px;
+      color: #fff;
+      text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+      opacity: 0.8;
+      transform: rotate(-8deg);
+    }
+
+    /* Caption strip below image */
+    .pg-cap {
+      flex-shrink: 0;
+      padding: 14px 18px;
+      background: #0a0a0a;
+      border-top: 1px solid #151515;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #999;
+      text-align: center;
+    }
+
+    .pg-cap em {
+      color: #ddd;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .pg-cap .red {
+      color: #b44;
+      font-weight: 600;
+    }
+
+    /* ---- TEXT-ONLY PAGES ---- */
+    .pg-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 28px;
+      text-align: center;
+    }
+
+    .pg-act {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    .pg-ch {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .pg-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ddd;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .pg-date {
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 2px;
+    }
+
+    .pg-narr {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 15px;
+      line-height: 2.2;
+      color: #888;
+      max-width: 380px;
+    }
+
+    .pg-narr em {
+      color: #ddd;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .pg-narr .red {
+      color: #b44;
+      font-weight: 700;
+    }
+
+    .pg-quote {
+      border-left: 2px solid #1a1a1a;
+      padding-left: 16px;
+      text-align: left;
+      max-width: 360px;
+    }
+
+    .pg-quote-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      font-style: italic;
+      color: #777;
+      line-height: 1.9;
+    }
+
+    .pg-quote-text em {
+      color: #bbb;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .pg-quote-attr {
+      font-size: 9px;
+      color: #333;
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    /* Ending */
+    .pg-ending {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .end-rule {
+      width: 30px;
+      height: 1px;
+      background: #1a1a1a;
+      margin-bottom: 24px;
+    }
+
+    .end-body {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      color: #555;
+      line-height: 2.2;
+    }
+
+    .end-body em {
+      color: #888;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .end-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28px;
+      color: #222;
+      margin-top: 30px;
+      letter-spacing: 6px;
+    }
+
+    .end-attr {
+      font-size: 9px;
+      color: #1a1a1a;
+      margin-top: 36px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 2;
+    }
+
+    /* ---- PAGE NUMBER ---- */
+    .pg-num {
+      position: absolute;
+      bottom: 6px;
+      right: 10px;
+      font-size: 9px;
+      color: #222;
+      z-index: 10;
+    }
+
+    /* ---- NAV ---- */
+    .nav-left, .nav-right {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 28%;
+      z-index: 20;
+      cursor: pointer;
+    }
+
+    .nav-left { left: 0; }
+    .nav-right { right: 0; }
+
+    .nav-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 30;
+    }
+
+    .nav-btn {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #1a1a1a;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      color: #444;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover { border-color: #444; color: #aaa; }
+    .nav-btn.off { opacity: 0.15; pointer-events: none; }
+
+    .nav-ct {
+      font-size: 9px;
+      color: #222;
+      letter-spacing: 3px;
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 540px) {
+      .page-frame {
+        width: 100vw;
+        max-width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        max-height: none;
+        border: none;
+      }
+
+      .pg-cap { padding: 12px 16px; font-size: 12px; }
+      .pg-title { font-size: 21px; }
+      .pg-narr { font-size: 14px; }
+      .pg-text { padding: 28px 20px; }
+      .nav-left, .nav-right { width: 30%; }
+      .cover-jp { font-size: 48px; letter-spacing: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cover" id="cover" onclick="startBook()">
+    <div class="cover-bg"></div>
+    <div class="cover-inner">
+      <div class="cover-jp">権力</div>
+      <div class="cover-title">Project Mario</div>
+      <div class="cover-sub">How DeepMind's experiments in AI safety governance transformed Demis Hassabis from an idealist into a realist</div>
+      <button class="cover-btn">Open Book</button>
+    </div>
+    <div class="cover-hint">Based on The Infinity Machine by Sebastian Mallaby</div>
+  </div>
+
+  <div class="reader" id="reader">
+    <div class="nav-left" onclick="prev()"></div>
+    <div class="nav-right" onclick="next()"></div>
+    <div class="page-frame" id="page"></div>
+    <div class="nav-bar">
+      <div class="nav-btn" id="bp" onclick="prev()">&#9664;</div>
+      <div class="nav-ct" id="ct"></div>
+      <div class="nav-btn" id="bn" onclick="next()">&#9654;</div>
+    </div>
+  </div>
+
+  <script>
+    const I = 'images/';
+    const pages = [
+
+      // ===== ACT I: THE DREAM (2009-2015) =====
+      { type: 'text', act: 'Act I \u2014 The Dream', title: '2009', date: 'North London' },
+
+      { type: 'img', src: I+'childhood.png',
+        cap: 'Two boys from North London. One Greek-Cypriot, one Bangladeshi. Demis Hassabis and Mustafa Suleyman grew up together \u2014 poker at the kitchen table, board games, fed and housed by the Hassabis family. Suleyman\u2019s best friend was George, Demis\u2019s kid brother.' },
+
+      { type: 'img', src: I+'legg-lecture.png',
+        cap: '2009. A lecture in London. Shane Legg warned that superintelligent computers could develop agendas of their own \u2014 and <em>subjugate or annihilate</em> humans. In the audience, Hassabis gripped the armrest. The two bonded instantly over existential fear.' },
+
+      { type: 'text', narr: 'They founded <em>DeepMind</em> together. Safety was baked in from before day one.<br><br>Hassabis added his own vivid talk about <em>disappearing into a bunker</em> to birth superintelligence.' },
+
+      { type: 'text', narr: 'In 2014, Google acquired DeepMind. Hassabis and Suleyman extracted promises: their technology would <em>never be used for weapons or surveillance</em>.<br><br>DeepMind was the world\u2019s top AI lab. Its strongest rival, Google Brain \u2014 the researchers who would invent the transformer \u2014 was part of the <em>same company</em>. If they could solve AI governance internally, they would go much of the way to solving it, period.' },
+
+      { type: 'text', ch: 'Chapter 01', title: 'The First Meeting', date: 'SpaceX \u2014 August 2015' },
+
+      { type: 'img', src: I+'spacex-meeting.png',
+        cap: 'The world\u2019s first AGI safety board. Elon Musk hosted at SpaceX. Larry Page, Reid Hoffman, and other luminaries attended. The meeting produced <em>no agreements</em>. No conclusions.' },
+
+      { type: 'text', narr: 'Personal tensions \u2014 especially between Musk and Google CEO Larry Page \u2014 overwhelmed the discussion.<br><br>Worse, Musk used what he learned about DeepMind\u2019s progress to found <em>OpenAI</em> as a direct rival \u2014 an explicitly anti-Google, anti-Hassabis venture.' },
+
+      { type: 'text', narr: 'With that attempt at oversight <em>stillborn</em>, Suleyman resolved to create an alternative.<br><br>He imagined a novel, <em>post-capitalist</em> form of governance: one that might balance profit, existential risk, and social justice.<br><br>As always with Suleyman, his passion was not in doubt. But the obstacles were formidable.' },
+
+      // ===== ACT II: THE FIGHT (2016-2017) =====
+      { type: 'text', act: 'Act II \u2014 The Fight', ch: 'Chapter 02', title: 'Project Mario', date: '2016' },
+
+      { type: 'text', narr: 'Google was restructuring itself under a new holding company called <em>Alphabet</em>. Google\u2019s M&A chief, Don Harrison, suggested DeepMind could regain independence via this route.<br><br>A <em>3-3-3 board</em>: three from DeepMind, three from Alphabet, three independent. DeepMind\u2019s leaders, fond of secretive code names, dubbed the talks:<br><br><em>Project Mario.</em>' },
+
+      { type: 'text', narr: 'The commercial logic was clear. Larry Page worried Google was growing unwieldy. Hiving off cash-burning ventures would boost the stock price.<br><br>For Hassabis and Suleyman, this was all to the good. If the plan served Google\u2019s interests too, it might actually be <em>implemented</em>.' },
+
+      { type: 'img', src: I+'pub-plotting.png',
+        cap: 'Most Sunday evenings, Hassabis met Suleyman at a pub. Mint tea. No alcohol. Food ordered at the last moment, right before the kitchen closed. They talked into the evening.' },
+
+      { type: 'text', narr: 'Suleyman launched <em>DeepMind Health</em>, believing AI could earn a lucrative share of savings for hospitals.<br><br>Hassabis, for his part, assembled something more secretive.' },
+
+      { type: 'img', src: I+'hedge-fund.png',
+        cap: 'A secret hedge-fund operation inside DeepMind. 20 researchers training high-frequency trading algorithms. A collaboration with <em>BlackRock</em> explored. Google did not approve.' },
+
+      { type: 'text', quote: { text: 'Hassabis wanted to beat Jim Simons, the mathematician who founded Renaissance Technologies. \u201CRentec operated in secret, which Demis loved.\u201D<br><br>Peter Brown, Rentec\u2019s leader, was a deep-learning pioneer who had studied under <em>Geoffrey Hinton</em>. He slept on a fold-down bed in his office.', attr: '\u2014 An acquaintance of Hassabis' } },
+
+      { type: 'text', narr: 'Did the secret trading team make money?<br><br><em>No.</em><br><br>Because of Google\u2019s wariness, it was quietly disbanded.' },
+
+      { type: 'text', ch: 'Chapter 03', title: 'The Bad Cop', date: 'November 21, 2016' },
+
+      { type: 'text', narr: 'Hassabis met Larry Page on four occasions. A formal term sheet was signed. Then he met the new CEO, <em>Sundar Pichai</em> \u2014 an engineer with an MBA from Wharton, a boyish grin, an affable manner, and a dislike of confrontation.<br><br>Cordial but bland. The DeepMinders concluded: <em>Pichai was not going to rock the boat.</em>' },
+
+      { type: 'img', src: I+'drummond-arrives.png',
+        cap: 'The following week: a rude awakening. Google\u2019s chief legal officer, David Drummond, showed up in London.',
+        bub: { text: 'Everyone is in agreement on safety. But regarding the spin-out\u2026 there are concerns.', top: '10px', right: '10px' } },
+
+      { type: 'text', narr: 'Drummond elaborated on a complex new formula that was not quite a spin-out but not quite the status quo.<br><br>Four days later, Pichai revealed the <em>steelier side</em> of his personality. AI was destined to become strategically important to Google. The \u201Cbet\u201D option was for moonshots <em>unrelated</em> to Google\u2019s core business \u2014 like autonomous cars or life extension. AI did not belong in that bucket.' },
+
+      { type: 'text', narr: 'It was not clear whether Pichai was slamming the door \u2014 or whether, given Page\u2019s apparently contrary position, he had the authority to do so.<br><br>With a bit more pushing, Hassabis and Suleyman reckoned, they could get what they wanted.' },
+
+      { type: 'text', ch: 'Chapter 04', title: 'Plan B', date: 'Late 2016' },
+
+      { type: 'text', narr: 'Back in 2013, during the acquisition negotiations with Google, they had entertained a rival bid from <em>Facebook</em>. Now they cooked up another version of Plan B.<br><br><em>$5 billion</em> in outside pledges. If Google refused governance \u2014 they would walk out.' },
+
+      { type: 'img', src: I+'war-room.png',
+        cap: 'Suleyman assembled imaginative lawyers, a top-flight communications strategist, and a prominent investment banker. DeepMind would become a company <em>\u201Climited by guarantee\u201D</em> \u2014 the structure used by nonprofits. No shares. No dividends. Its obligation: its principles.' },
+
+      { type: 'text', quote: { text: '\u201CIt was open to Alphabet to just say: back in your boxes, boys, <em>we own you</em>, you\u2019ll do what we say.\u201D<br><br>DeepMind staff were legally employed by Google. Noncompete clauses. IP ownership. Taking 100 people out of Google in one day would be <em>legally messy</em>.', attr: '\u2014 A DeepMind adviser' } },
+
+      { type: 'text', narr: 'But bolstered by a lawyer who was an authority on public-interest law, they were ready to assert that the <em>British public</em> had an interest in DeepMind breaking free from Google.<br><br>Surely Google cared too much about its reputation to challenge this in court?' },
+
+      { type: 'text', quote: { text: '\u201CWe <em>never ever</em> said to Google: unless you do this, we will leave. The art was to get Google to take this negotiation seriously. To their credit, they never said: we know you aren\u2019t leaving, so why are you wasting our time? That was why this episode was so unusual.\u201D', attr: '\u2014 A DeepMind adviser' } },
+
+      { type: 'text', ch: 'Chapter 05', title: 'One Billion Dollars', date: 'Asilomar, California \u2014 January 2017' },
+
+      { type: 'img', src: I+'asilomar-hotel.png',
+        cap: 'The Asilomar Hotel \u2014 a serene seaside refuge on the Monterey Peninsula. Half a century earlier, it laid ground rules for genetic research. Now, after <em>AlphaGo\u2019s</em> defeat of Lee Sedol, it was AI\u2019s turn.' },
+
+      { type: 'text', narr: 'Hoffman was seeing the same dynamic play out between OpenAI and Microsoft. Musk had flown into a fury when Microsoft tried to use its OpenAI partnership as a PR talking point.<br><br><em>\u201CHe would not let OpenAI seem like Microsoft\u2019s marketing bitch,\u201D</em> Musk protested.' },
+
+      { type: 'text', narr: 'Hoffman applauded novel governance structures. Sam Altman had read James Madison\u2019s notes on the Constitutional Convention for inspiration:<br><br><em>\u201CWe\u2019re planning a way to allow wide swaths of the world to elect representatives to a new governance board. Because if I wasn\u2019t in on this I\u2019d be, like, why do these fuckers get to decide what happens to me?\u201D</em>' },
+
+      { type: 'text', narr: 'Just two months earlier, the United States had elected <em>President Donald Trump</em>. Hoffman was open to backing a DeepMind walk-away, especially if it filled the governance vacuum created by do-nothing political leaders.' },
+
+      { type: 'img', src: I+'hoffman-billion.png',
+        cap: 'Hoffman had recently sold LinkedIn to Microsoft. Net worth: <em>$3.8 billion</em>. He committed more than a quarter of his wealth \u2014 <em>$1 billion</em>. 100\u00D7 more than he pledged to OpenAI.' },
+
+      { type: 'text', quote: { text: '\u201CI thought that 90 percent of my wealth would flow to philanthropic causes. So I decided right then to commit $1 billion.<br><br>I didn\u2019t tell Sam about this. I didn\u2019t tell Greylock.<br><br><em>Billionaires answer to nobody.</em>\u201D', attr: '\u2014 Reid Hoffman' } },
+
+      { type: 'text', narr: 'Suleyman sought out <em>Kent Walker</em>, Alphabet\u2019s top lawyer, and introduced him to <em>Angela Kane</em> \u2014 a senior UN official who worked on containing weapons of mass destruction. An excellent choice for the 3-3-3 board.<br><br>He also told Walker he had sounded out <em>Barack Obama</em>. He mentioned <em>Al Gore</em>. For good measure, he hinted that extremely rich people wanted DeepMind free.' },
+
+      { type: 'text', ch: 'Chapter 06', title: 'The Vegetarian Curry', date: 'Mountain View \u2014 January 9, 2017' },
+
+      { type: 'text', narr: 'Larry Page, also at Asilomar, still supported the spin-out. But it required <em>Pichai\u2019s buy-in</em>.<br><br>Hassabis packed his bag, left the conference early, and headed to Mountain View. He was <em>sick of back-and-forth and lawyers</em>.' },
+
+      { type: 'text', narr: 'Hassabis began conciliatory. Pichai, Page, and Eric Schmidt could represent Alphabet on the board. Angela Kane and other distinguished figures for the independent seats.<br><br><em>\u201CThe months of negotiation are distracting me. I want to focus on science.\u201D</em><br><br>Pichai sounded open to everything. A few details to iron out.' },
+
+      { type: 'text', narr: 'The next day: Drummond showed up and announced that Hassabis and Suleyman had <em>failed to understand Pichai</em>. He was entirely against Alphabetization.<br><br>They offered \u201Cevery single mechanism\u201D to assuage Google\u2019s concerns. Drummond was <em>unmoved</em>.' },
+
+      { type: 'text', narr: 'They emailed Pichai: <em>\u201CThe Alphabetization process has been dragging on for far too long (more than a year now), and it is really starting to impact our ability to manage the company.\u201D</em><br><br>They were willing to cancel their plans to attend <em>the World Economic Forum in Davos</em>. They wanted Page and Brin in the room. They were tired of the good cop/bad cop seesaw.' },
+
+      { type: 'img', src: I+'page-late.png',
+        cap: 'The next meeting. Hassabis and Suleyman argued DeepMind\u2019s mission was AGI, not consumer products. Pichai objected. Larry Page showed up <em>two hours late</em>. Sergey Brin was even later.' },
+
+      { type: 'text', narr: 'Their version of what later came to be known as \u201Cfounder mode\u201D was that they were <em>nowhere to be found</em>.<br><br>With Page and Brin effectively checked out, <em>Pichai was the man DeepMind had to deal with</em>.' },
+
+      { type: 'img', src: I+'pichai-dinner.png',
+        cap: 'Pichai tried to break the deadlock. At his home in Silicon Valley, he served Suleyman <em>a vegetarian curry and a tasty proposal</em>.',
+        bub: { text: 'What if DeepMind splits in two?', top: '10px', left: '10px' } },
+
+      { type: 'text', narr: 'Hassabis could spin out Research and go after AGI \u2014 <em>who knew if that would work</em>, Pichai remarked, somewhat dismissively.<br><br>Suleyman would run all Google\u2019s applied AI from California.<br><br>Perhaps hoping to <em>drive a wedge</em> between them.' },
+
+      { type: 'img', src: I+'airport-exhaustion.png',
+        cap: 'Through spring 2017, grinding progress. Every few weeks: the <em>11-hour flight</em> from London to San Francisco. Another meeting. Then back to re-scramble their body clocks.' },
+
+      { type: 'text', narr: '<em>\u201CWe would push back on stuff, they would push back on stuff,\u201D</em> Suleyman said later.<br><br>Small wonder that when the <em>transformer architecture</em> appeared that summer, Hassabis was less alert to its potential than he might have been.' },
+
+      // ===== AVIEMORE =====
+      { type: 'text', ch: 'Chapter 07', title: 'The Enchanted Forest', date: 'Scottish Highlands \u2014 June 2017' },
+
+      { type: 'img', src: I+'scotland-jets.png',
+        cap: '500 employees left London on two chartered jets, bound for the Scottish Highlands. A resort called Aviemore, not far from the royal castle of Balmoral.' },
+
+      { type: 'text', quote: { text: '\u201CIf you want a lot of accommodation, there\u2019s Scotland and there are private islands. Private islands are a bit much, I think.\u201D', attr: '\u2014 The chief planner' } },
+
+      { type: 'img', src: I+'go-karts.png',
+        cap: 'Hassabis and Suleyman led an expedition to a go-karting racetrack. <em>It was hard to say which founder was more competitive.</em>' },
+
+      { type: 'text', narr: 'Suleyman surveyed the problems AI would tackle: health, climate change. Jim Gao, a Google engineer, had built an AI system that cut electricity consumption at data centers. Now he planned to take it further \u2014 <em>intelligent buildings</em> that learned to conserve energy.' },
+
+      { type: 'img', src: I+'aviemore-reveal.png',
+        cap: 'Suleyman got to the climax. <em>\u201CDeepMind: A Global Interest Company.\u201D</em> An org chart with two boxes and a dotted line. The several hundred onlookers were taken aback.',
+        sfx: { text: '\u885D\u6483', top: '8px', left: '14px' } },
+
+      { type: 'text', narr: 'The first box: <em>\u201CAlphabet/Google\u201D</em> \u2014 Suleyman and Applied AI at the heart of the mothership. This was not a spin-out; it was a <em>spin-in</em>.<br><br>The second box: <em>\u201CDeepMind\u201D</em> \u2014 an independent Global Interest Company, connected to Google only by a dotted line.<br><br>A spin-in AND a spin-out. People\u2019s heads were spinning.' },
+
+      { type: 'text', narr: '<em>Ten days later.</em><br><br>Google sent back its position. <span class="red">Red lines all over it.</span><br><br>Hassabis and Suleyman faced walking back the vision laid out to the <em>entire company</em>.' },
+
+      { type: 'text', narr: 'Hassabis canceled his next call with Pichai to signal anger. Pichai pinged back at once \u2014 he wanted to chat as soon as possible. After keeping the boss hanging, Hassabis eventually agreed, then <em>hotly emphasized his disappointment</em>.<br><br>Four days later, Suleyman emailed Drummond and canceled another meeting.' },
+
+      { type: 'text', narr: 'The relationship between Google and DeepMind had <em>hit bottom</em>.<br><br>Google saw too much commercial potential in AI to let it slip out of its control. DeepMind saw too much existential risk to let commercial priorities dictate AI\u2019s deployment.<br><br>Each side recognized that it needed the other. A <em>fractious dialogue</em> continued.' },
+
+      // ===== ACT III: THE PARALLEL WAR =====
+      { type: 'text', act: 'Act III \u2014 The Mirror War', ch: 'Chapter 08', title: 'The Mirror Image', date: 'OpenAI \u2014 2017' },
+
+      { type: 'text', narr: 'Unbeknownst to them, a <em>parallel fight</em> was playing out at OpenAI.<br><br>DeepMind: a for-profit wanting nonprofit governance around AI.<br>OpenAI: a nonprofit needing capitalist machinery to raise money.<br><br>Both saw salvation in a <em>capitalist/post-capitalist hybrid</em>.' },
+
+      { type: 'text', narr: 'Sutskever and Brockman fell out with Musk and Altman. Altman wanted to become CEO and was maneuvering to get Musk out \u2014 even though <em>he</em> had drawn Musk in. Musk poached one of OpenAI\u2019s key scientists for Tesla\u2019s AI division.<br><br>The sheer potential of artificial intelligence <em>discouraged compromise</em>.' },
+
+      { type: 'text', quote: { text: '\u201CThis process has been the <em>highest stakes conversation</em> that Greg and I have ever participated in. If OpenAI succeeded, it\u2019ll turn out to have been the highest stakes conversation the world has seen.\u201D', attr: '\u2014 Ilya Sutskever, email to Musk and Altman, September 20, 2017' } },
+
+      { type: 'text', quote: { text: '\u201CYou stated that you don\u2019t want to control the final AGI, but during this negotiation, you\u2019ve shown us that <em>absolute control is extremely important to you</em>.\u201D<br><br>\u201CYou are concerned that Demis could create an AGI dictatorship. So it is a bad idea to create a structure where <em>you could become a dictator</em> if you chose to.\u201D', attr: '\u2014 Sutskever to Musk' } },
+
+      { type: 'text', quote: { text: '\u201CWe don\u2019t understand why the CEO title is so important to you. Your stated reasons have changed.\u201D<br><br>\u201CIs AGI truly your primary motivation? How does it connect to your <em>political goals</em>?\u201D', attr: '\u2014 Sutskever to Altman (whose California gubernatorial run struck Sutskever as contradictory)' } },
+
+      { type: 'text', narr: 'Musk\u2019s response was curt:<br><br><em>\u201CGuys, I\u2019ve had enough. I will no longer fund OpenAI until you have made a firm commitment to stay or I\u2019m just being a fool who is essentially providing free funding for you to create a startup.\u201D</em><br><br>Two days later, Sutskever and Brockman <em>caved</em>.' },
+
+      { type: 'img', src: I+'altman-betrayal.png',
+        cap: 'Altman quickly cozied up to Musk, ensuring his own role in inciting the rebellion went unsuspected. <em>\u201CI remain enthusiastic about the non-profit structure!\u201D</em> He told Musk\u2019s lieutenant, Shivon Zilis, that Brockman and Sutskever\u2019s remonstrations had been \u201Cchildish.\u201D' },
+
+      { type: 'text', ch: 'Chapter 09', title: '3:52 AM', date: 'January 2018' },
+
+      { type: 'text', narr: 'Musk sent a dispiriting chart showing DeepMind and Google Brain generated the lion\u2019s share of AI research.<br><br><em>\u201COpenAI is on a path of certain failure relative to Google.\u201D</em>' },
+
+      { type: 'text', quote: { text: '\u201COur biggest tool is the moral high ground. AI is going to shake up the fabric of society, and our fiduciary duty should be to humanity.<br><br><em>It doesn\u2019t matter who wins if everyone dies.</em>\u201D', attr: '\u2014 Greg Brockman, email to Musk' } },
+
+      { type: 'img', src: I+'musk-3am.png',
+        cap: 'Musk responded the next morning at <em>3:52 AM</em>. OpenAI should spin into Tesla. Use self-driving car profits to fund AGI.' },
+
+      { type: 'text', narr: 'Back in 2014, Musk had Skyped Hassabis <em>from a closet in LA</em>, proposing that Tesla or SpaceX should absorb DeepMind. Almost exactly four years later, the new version of this proposal played into Altman\u2019s hands: it proved Musk\u2019s power hunger.' },
+
+      { type: 'img', src: I+'musk-closet.png',
+        cap: '2014. Musk Skyped Hassabis from a closet in LA, proposing Tesla or SpaceX should absorb DeepMind. <em>History was repeating itself.</em>' },
+
+      { type: 'img', src: I+'musk-rage.png',
+        cap: 'At an all-hands in the converted truck factory, Musk announced he was quitting. An intern asked if speed might be reckless. <em>\u201CYou\u2019re a jackass!\u201D</em> He stormed out.',
+        bub: { text: 'You\u2019re a jackass!', bottom: '80px', left: '12px' } },
+
+      { type: 'text', narr: '<em>\u201CIsn\u2019t developing AI at a for-profit company like Tesla the same as creating it at a for-profit company like Google? Isn\u2019t this going back to what you said you didn\u2019t want to do?\u201D</em><br><br>The intern was right. Musk had no answer. He never came back.' },
+
+      // ===== ACT III continued: UNRAVELING =====
+      { type: 'text', ch: 'Chapter 10', title: 'The Unraveling', date: '2018' },
+
+      { type: 'img', src: I+'alphabet-board.png',
+        cap: 'DeepMind presented a thick slide deck to the Alphabet board. <em>\u201CAn unprecedented technology requires an unprecedented structure.\u201D</em> One slide quoted Putin: \u201CThe leader in AI will be ruler of the world.\u201D' },
+
+      { type: 'img', src: I+'term-sheet.png',
+        cap: 'The two sides converged. Suleyman would lead Applied from within Google. Hassabis would run Research independently. Google signed a term sheet: <em>$15 billion</em> guaranteed over a decade.' },
+
+      { type: 'text', quote: { text: '\u201CI don\u2019t want this part of my brain to grow.\u201D', attr: '\u2014 Hassabis, when asked to review another legal document' } },
+
+      { type: 'text', narr: 'Then, all of a sudden, the hope of resolution <em>shattered</em>.<br><br>Apple poached John Giannandrea, who had supported Suleyman\u2019s move to Mountain View. Jeff Dean was promoted. The space in the org chart \u2014 <em>eliminated</em>.<br><br>Suleyman had already told his deputies to prepare their move to California. Now he had to <em>un-promise</em> what he had promised.' },
+
+      { type: 'text', quote: { text: '\u201CI remember being with Moose and he was like, what do I do now? That\u2019s when he ended up wearing no clothes. <em>He was up the cloud in a banana.</em>\u201D', attr: '\u2014 A colleague' } },
+
+      { type: 'text', narr: 'Hassabis doubled down on his co-founder. They revived the walk-away option, inviting Hong Kong tech mogul <em>Joe Tsai</em> to match Hoffman\u2019s $1 billion. Tsai politely waved them off.<br><br>They forged a pact to avoid recriminations in executive committee meetings \u2014 colleagues couldn\u2019t get a word in when the top dogs went after each other.' },
+
+      // ===== ACT IV: THE FALL (2019) =====
+      { type: 'text', act: 'Act IV \u2014 The Fall', ch: 'Chapter 11', title: 'Loyalty and Its Limits', date: '2019' },
+
+      { type: 'text', narr: 'The true story is subtler, and more revealing about Hassabis.<br><br>He valued long-term friendship \u2014 DeepMind employed figures from his time at Cambridge and <em>Elixir Studios</em>, the computer-game developer he founded in the late 1990s. The desire to be good was lodged deeply inside him.' },
+
+      { type: 'text', narr: 'This was his younger brother\u2019s friend. His poker companion. The talented kid who had been <em>fed and housed and occasionally employed</em> by Hassabis\u2019s own parents.<br><br>Suleyman may even have felt to Hassabis like a voice in his head \u2014 the voice that ensured that, as he chased AGI, Hassabis remained tethered to the values of his <em>North London upbringing</em>.' },
+
+      { type: 'text', narr: 'But there were limits to loyalty.<br><br>Hassabis liked to say that the worst thing in the world was to <em>control someone</em>. Unlike some leaders intoxicated with power, he took no pleasure in dominating people.<br><br>But his hatred of domination ran the other way: he was determined <em>not to be dominated</em>. DeepMind was his creation, his identity.' },
+
+      { type: 'text', narr: 'A handful of employees alleged Suleyman reduced subordinates to tears. Harsh language. Intimidating texts. Humiliation in front of peers.<br><br>Suleyman\u2019s grand experiment in AI governance was failing. And whatever the merits of the allegations, there was clearly a faction that wanted him out.<br><br>Perhaps this might be a <em>convenience</em>?' },
+
+      { type: 'text', narr: 'A more forthright founder might have told his junior co-founder: <em>it\u2019s time to part</em>. Instead, Hassabis allowed his lieutenants to investigate. The COO and chief counsel took charge. An outside lawyer was retained. As Suleyman\u2019s old friend, Hassabis was told to <em>recuse himself</em>.' },
+
+      { type: 'img', src: I+'review-meeting.png',
+        cap: 'After three months, the lawyer produced a 25-page report. Suleyman was summoned. Accept the complaints: keep his reputation, take a sabbatical, work with a coach. Dispute them: formal procedure, fired, <em>forfeit compensation</em>.' },
+
+      { type: 'text', narr: 'He was granted a couple of hours to make his decision.' },
+
+      { type: 'img', src: I+'coal-drops-yard.png',
+        cap: 'He left the office and paced furiously through <em>Coal Drops Yard</em> \u2014 the trendy heart of King\u2019s Cross. He phoned Marilyn, his girlfriend from when his best friend had been George Hassabis. Later, he would wish he had called <em>a lawyer</em>.' },
+
+      { type: 'text', narr: 'Around noon, Suleyman walked back in.<br><br><em>He accepted the charges.</em><br><br>A few days later, an all-staff email: after a decade of relentless efforts, he was taking time to recharge. Many colleagues replied with good wishes. Almost nobody knew of the investigation.' },
+
+      { type: 'text', ch: 'Chapter 12', title: 'Placed on Leave', date: 'August 21, 2019' },
+
+      { type: 'img', src: I+'french-beach.png',
+        cap: 'Ruth Barnett, DeepMind\u2019s communications director, was on a French beach. Her phone rang. Bloomberg was about to publish. <em>One hour.</em>' },
+
+      { type: 'text', quote: { text: '\u201CWe need to agree on a strategy \u2014 do we want to fight this?\u201D<br><br>The voices went back and forth. \u201CPlaced on leave\u201D was not quite true, since Suleyman was taking a sabbatical. But it wasn\u2019t quite untrue either.', attr: '\u2014 Ruth Barnett and DeepMind lieutenants' } },
+
+      { type: 'text', quote: { text: '\u201CThey couldn\u2019t decide whether they had or hadn\u2019t placed Mustafa on leave. Nobody said let him burn, take him down. No one briefed against him. There just wasn\u2019t a plan, and they were <em>caught with their pants down</em>.\u201D', attr: '\u2014 A DeepMind colleague' } },
+
+      { type: 'img', src: I+'bloomberg-hit.png',
+        cap: 'On the other side of the world, Suleyman was in a conference room in Mountain View. A message popped up on his screen. He put his face in his hands and <em>walked out</em>.' },
+
+      { type: 'text', narr: 'He had thought accepting the complaints would protect his reputation. The headline <em>shredded</em> that implicit contract.<br><br>There was no way this could have happened, he reckoned, without Hassabis\u2019s approval. Bloomberg had gone with the story because DeepMind had <em>failed to deny it convincingly</em>.<br><br>The first suspicion was false. But the second one was accurate.' },
+
+      { type: 'text', narr: 'Suleyman threw himself into management coaching with the same intensity he brought to everything. But after the humiliating story, he felt there was no way he could return.<br><br>Jim Gao added to the exodus, quitting with his climate team to launch a startup. <em>It was the close of an experiment.</em>' },
+
+      { type: 'img', src: I+'prince-no-court.png',
+        cap: 'Google made him a Vice President. He moved to California. But Suleyman was now <em>a prince without a court</em>. Despite his grand title, he was not allowed to manage others.' },
+
+      // ===== ACT V: THE VERDICT =====
+      { type: 'text', act: 'Act V \u2014 The Verdict', ch: 'Chapter 13', title: 'The Ominous Lesson', date: '2019\u20132023' },
+
+      { type: 'text', narr: 'If you couldn\u2019t negotiate safety mechanisms inside <em>one company</em> \u2014 a company that, because of its extreme profitability and unconventional founders, was more open to governance experiments than most \u2014 what chance would there be to negotiate safeguards among multiple labs in <em>multiple countries</em>?' },
+
+      { type: 'img', src: I+'brin-confrontation.png',
+        cap: 'Sergey Brin rounded on Suleyman at an Alphabet board meeting. The Independent Review Panel for DeepMind Health had used its platform to \u201Cdemonstrate independence\u201D by dinging the tech sector \u2014 rather than celebrating lifesaving algorithms. <em>\u201CIf you gave outsiders a platform, they would use it for their own ends.\u201D</em>' },
+
+      { type: 'text', narr: 'In 2019, Google tried its own <em>Advanced Technology External Advisory Council</em>. To achieve political diversity, they included Heritage Foundation president Kay Coles James.<br><br>Social media critics swooped in. Other appointees withdrew. Google <em>disbanded the advisory group</em>.' },
+
+      { type: 'img', src: I+'openai-coup.png',
+        cap: 'In 2023, OpenAI\u2019s governance board tried to assert its authority by firing Altman. He rallied financiers to his side and staged a countercoup. Three nonprofiteers were <em>defenestrated</em>. The nonprofit charter lay in pieces.' },
+
+      { type: 'text', narr: 'The failure of company-level safety oversight was especially dispiriting given the bleak prospects for government regulation.<br><br>Reid Hoffman had been correct in 2017. It was worth risking his fortune on corporate-governance experiments because <em>governments were unlikely to take action</em>.' },
+
+      { type: 'text', ch: 'Chapter 14', title: 'Idealist to Realist', date: '2024\u20132025' },
+
+      { type: 'img', src: I+'two-paths.png',
+        cap: 'Hassabis: CEO of <em>Google DeepMind</em>, absorbing Mountain View\u2019s AI researchers. Suleyman: quit Google, launched a startup with Hoffman, became CEO of <em>Microsoft AI</em>. Two North Londoners. Two American tech giants.' },
+
+      { type: 'text', narr: 'Although they were now rivals, with bitter memories of their parting, they delivered <em>similar verdicts</em>.<br><br>The exercise had been futile. The negotiations achieved nothing. They were <em>bound</em> to achieve nothing. They consumed vast quantities of energy and goodwill, making them positively harmful.' },
+
+      { type: 'text', narr: 'With their faith in governance mechanisms <em>shattered</em>, Hassabis and Suleyman had come to see salvation, paradoxically, in their own <em>personal power</em>. They believed in their capacity to shape AI for the good. Their new safety agenda involved securing personal influence within their companies.' },
+
+      { type: 'img', src: I+'idealist-realist.png',
+        cap: '<em>\u201CSafety isn\u2019t about governance structures. Even if you have a governance board, it probably wouldn\u2019t do the right thing when it came to the crunch.\u201D</em>' },
+
+      { type: 'text', quote: { text: '\u201CWhen we were negotiating with Google, we wanted to ensure safety in a way that would be <em>trustless</em>. That\u2019s actually very difficult to do in reality.<br><br>It made it harder to build useful trust, because when you are negotiating a trustless structure, it implies that you <em>can\u2019t trust</em> the other person.\u201D', attr: '\u2014 Demis Hassabis' } },
+
+      { type: 'text', quote: { text: '\u201CSo then I thought, why don\u2019t I go the other way? Take the energy going into the trustless negotiation and put it into creating <em>real trust</em>.<br><br>You are now at the table. When a safety issue comes up, you can help decide it. You rack up successes together. You can\u2019t just talk about trust. <em>You have to earn it.</em>\u201D', attr: '\u2014 Demis Hassabis' } },
+
+      { type: 'text', quote: { text: '\u201CI think for me, and maybe for Mustafa too, it\u2019s about us <em>growing up</em>. We went through those negotiations and we matured. Things aren\u2019t black and white, especially when you are dealing with a technology with unknown consequences.<br><br>You have to be adaptable. You have to move from <em>idealist to realist</em>, but hopefully still with your values.\u201D', attr: '\u2014 Demis Hassabis' } },
+
+      // ENDING
+      { type: 'text', narr: 'In selling DeepMind to Google, they had extracted a promise that their technology would never be used for <em>weapons or surveillance</em>.<br><br>By 2025, Google, like Microsoft, was eager to supply AI to the <em>national security complex</em>.' },
+
+      { type: 'ending' }
+    ];
+
+    let cur = 0;
+
+    function startBook() {
+      document.getElementById('cover').style.display = 'none';
+      document.getElementById('reader').classList.add('on');
+      cur = 0;
+      render();
+    }
+
+    function render() {
+      const el = document.getElementById('page');
+      const d = pages[cur];
+      let html = '';
+
+      if (d.type === 'img') {
+        html += '<div class="pg-img">';
+        html += `<img src="${d.src}" alt="">`;
+        if (d.bub) {
+          const s = Object.entries(d.bub).filter(([k])=>k!=='text').map(([k,v])=>`${k}:${v}`).join(';');
+          html += `<div class="pg-bub" style="${s}">${d.bub.text}</div>`;
+        }
+        if (d.sfx) {
+          const s = Object.entries(d.sfx).filter(([k])=>k!=='text').map(([k,v])=>`${k}:${v}`).join(';');
+          html += `<div class="pg-sfx" style="${s}">${d.sfx.text}</div>`;
+        }
+        html += '</div>';
+        if (d.cap) html += `<div class="pg-cap">${d.cap}</div>`;
+      }
+
+      else if (d.type === 'text') {
+        html += '<div class="pg-text">';
+        if (d.act) html += `<div class="pg-act">${d.act}</div>`;
+        if (d.ch) html += `<div class="pg-ch">${d.ch}</div>`;
+        if (d.title) html += `<div class="pg-title">${d.title}</div>`;
+        if (d.date) html += `<div class="pg-date">${d.date}</div>`;
+        if (d.narr) html += `<div class="pg-narr">${d.narr}</div>`;
+        if (d.quote) {
+          html += '<div class="pg-quote">';
+          html += `<div class="pg-quote-text">${d.quote.text}</div>`;
+          if (d.quote.attr) html += `<div class="pg-quote-attr">${d.quote.attr}</div>`;
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+
+      else if (d.type === 'ending') {
+        html += '<div class="pg-ending">';
+        html += '<div class="end-rule"></div>';
+        html += '<div class="end-body">A technology as transformative as artificial intelligence was never going to be the product of a singleton effort. Once multiple labs in multiple countries joined the race, it would be impossible to resist the rush to deploy it in both civilian and military settings.<br><br>The notion that a well-meaning individual had a seat at the table offered a <em>flimsy scaffolding of reassurance</em> to an alarmed world.<br><br>But perhaps it was the best comfort available.</div>';
+        html += '<div class="end-kanji">\u7D42</div>';
+        html += '<div class="end-attr">Based on The Infinity Machine<br>by Sebastian Mallaby</div>';
+        html += '</div>';
+      }
+
+      html += `<div class="pg-num">${cur + 1}</div>`;
+      el.innerHTML = html;
+      updateNav();
+    }
+
+    function next() {
+      if (cur >= pages.length - 1) return;
+      cur++;
+      turn();
+    }
+
+    function prev() {
+      if (cur <= 0) return;
+      cur--;
+      turn();
+    }
+
+    function turn() {
+      const el = document.getElementById('page');
+      el.classList.add('turning');
+      setTimeout(() => { render(); el.classList.remove('turning'); }, 150);
+    }
+
+    function updateNav() {
+      document.getElementById('ct').textContent = `${cur + 1} / ${pages.length}`;
+      document.getElementById('bp').className = 'nav-btn' + (cur === 0 ? ' off' : '');
+      document.getElementById('bn').className = 'nav-btn' + (cur === pages.length - 1 ? ' off' : '');
+    }
+
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('cover').style.display !== 'none') {
+        if (e.key === 'Enter' || e.key === ' ') startBook();
+        return;
+      }
+      if (e.key === 'ArrowRight' || e.key === ' ') next();
+      if (e.key === 'ArrowLeft') prev();
+    });
+
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const d = e.changedTouches[0].clientX - tx;
+      if (Math.abs(d) > 50) { d < 0 ? next() : prev(); }
+    }, { passive: true });
+  </script>
+
+</body>
+</html>

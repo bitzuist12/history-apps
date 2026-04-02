@@ -337,15 +337,8 @@
       line-height: 2;
     }
 
-    /* ---- PAGE NUMBER ---- */
-    .pg-num {
-      position: absolute;
-      bottom: 6px;
-      right: 10px;
-      font-size: 9px;
-      color: #222;
-      z-index: 10;
-    }
+    /* ---- PAGE NUMBER (hidden — counter in nav bar instead) ---- */
+    .pg-num { display: none; }
 
     /* ---- NAV ---- */
     .nav-left, .nav-right {
@@ -362,14 +355,18 @@
 
     .nav-bar {
       position: absolute;
-      bottom: 8px;
+      bottom: 4px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
       align-items: center;
       gap: 14px;
       z-index: 30;
+      opacity: 0.4;
+      transition: opacity 0.3s;
     }
+
+    .nav-bar:hover { opacity: 1; }
 
     .nav-btn {
       width: 30px;

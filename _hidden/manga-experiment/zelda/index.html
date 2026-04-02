@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Zelda's Thread — A Manga</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      color: #ccc;
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* ---- COVER ---- */
+    .cover {
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      background: url('images/zelda-triumphant.png') center/cover;
+      opacity: 0.15;
+      filter: contrast(1.3) brightness(0.3);
+    }
+
+    .cover-inner {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .cover-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 12px;
+      color: #e0ddd6;
+    }
+
+    .cover-title {
+      font-size: 13px;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      color: #555;
+      margin: 8px 0 6px;
+    }
+
+    .cover-sub {
+      font-size: 11px;
+      color: #333;
+      line-height: 1.7;
+      max-width: 360px;
+      margin: 0 auto 36px;
+      font-style: italic;
+    }
+
+    .cover-btn {
+      border: 1px solid #333;
+      background: transparent;
+      color: #888;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cover-btn:hover { background: #e0ddd6; color: #000; }
+
+    .cover-hint {
+      position: absolute;
+      bottom: 16px;
+      font-size: 9px;
+      color: #1a1a1a;
+      letter-spacing: 2px;
+    }
+
+    /* ---- READER ---- */
+    .reader {
+      display: none;
+      height: 100vh;
+      height: 100dvh;
+      position: relative;
+    }
+
+    .reader.on {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ---- PAGE ---- */
+    .page-frame {
+      width: 92vw;
+      max-width: 520px;
+      height: 90vh;
+      height: 90dvh;
+      max-height: 860px;
+      background: #0a0a0a;
+      border: 1px solid #151515;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: opacity 0.15s ease;
+    }
+
+    .page-frame.turning { opacity: 0; }
+
+    .pg-img {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: #080808;
+      min-height: 0;
+    }
+
+    .pg-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.05);
+    }
+
+    .pg-bub {
+      position: absolute;
+      background: #e8e6df;
+      color: #111;
+      border-radius: 14px;
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      max-width: 180px;
+      line-height: 1.4;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.6);
+    }
+
+    .pg-bub::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 16px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #e8e6df;
+    }
+
+    .pg-cap {
+      flex-shrink: 0;
+      padding: 14px 18px;
+      background: #0a0a0a;
+      border-top: 1px solid #151515;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #999;
+      text-align: center;
+    }
+
+    .pg-cap em {
+      color: #ddd;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    /* ---- TEXT PAGES ---- */
+    .pg-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 28px;
+      text-align: center;
+    }
+
+    .pg-act {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    .pg-ch {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .pg-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ddd;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .pg-date {
+      font-size: 10px;
+      color: #333;
+      letter-spacing: 2px;
+    }
+
+    .pg-narr {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 15px;
+      line-height: 2.2;
+      color: #888;
+      max-width: 380px;
+    }
+
+    .pg-narr em {
+      color: #ddd;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .pg-quote {
+      border-left: 2px solid #1a1a1a;
+      padding-left: 16px;
+      text-align: left;
+      max-width: 360px;
+    }
+
+    .pg-quote-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      font-style: italic;
+      color: #777;
+      line-height: 1.9;
+    }
+
+    .pg-quote-text em {
+      color: #bbb;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .pg-quote-attr {
+      font-size: 9px;
+      color: #333;
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    .pg-ending {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .end-rule {
+      width: 30px;
+      height: 1px;
+      background: #1a1a1a;
+      margin-bottom: 24px;
+    }
+
+    .end-body {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      color: #555;
+      line-height: 2.2;
+    }
+
+    .end-body em {
+      color: #888;
+      font-style: normal;
+      font-weight: 600;
+    }
+
+    .end-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28px;
+      color: #222;
+      margin-top: 30px;
+      letter-spacing: 6px;
+    }
+
+    .end-attr {
+      font-size: 9px;
+      color: #1a1a1a;
+      margin-top: 36px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 2;
+    }
+
+    .pg-num { display: none; }
+
+    /* ---- NAV ---- */
+    .nav-left, .nav-right {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 28%;
+      z-index: 20;
+      cursor: pointer;
+    }
+
+    .nav-left { left: 0; }
+    .nav-right { right: 0; }
+
+    .nav-bar {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 30;
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+
+    .nav-bar:hover { opacity: 1; }
+
+    .nav-btn {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #1a1a1a;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      color: #444;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover { border-color: #444; color: #aaa; }
+    .nav-btn.off { opacity: 0.15; pointer-events: none; }
+
+    .nav-ct {
+      font-size: 9px;
+      color: #222;
+      letter-spacing: 3px;
+    }
+
+    .nav-ct-mobile {
+      display: none;
+    }
+
+    /* ---- RESPONSIVE ---- */
+    @media (max-width: 540px) {
+      .page-frame {
+        width: 100vw;
+        max-width: 100vw;
+        height: 100vh;
+        height: 100dvh;
+        max-height: none;
+        border: none;
+      }
+
+      .pg-img img {
+        object-fit: contain;
+        background: #080808;
+      }
+
+      .pg-cap { padding: 12px 16px; font-size: 12px; }
+      .pg-title { font-size: 21px; }
+      .pg-narr { font-size: 14px; }
+      .pg-text { padding: 28px 20px; }
+
+      .nav-left, .nav-right { width: 50%; }
+      .nav-bar { display: none; }
+
+      .nav-ct-mobile {
+        display: block;
+        position: fixed;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 9px;
+        color: #222;
+        letter-spacing: 3px;
+        z-index: 30;
+      }
+
+      .cover-jp { font-size: 48px; letter-spacing: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cover" id="cover" onclick="startBook()">
+    <div class="cover-bg"></div>
+    <div class="cover-inner">
+      <div class="cover-jp">糸</div>
+      <div class="cover-title">Zelda's Thread</div>
+      <div class="cover-sub">A Turkish mother, a dying bazaar, an Etsy shop, and the power of never giving up</div>
+      <button class="cover-btn">Open Book</button>
+    </div>
+    <div class="cover-hint">A true story</div>
+  </div>
+
+  <div class="reader" id="reader">
+    <div class="nav-left" onclick="prev()"></div>
+    <div class="nav-right" onclick="next()"></div>
+    <div class="page-frame" id="page"></div>
+    <div class="nav-bar">
+      <div class="nav-btn" id="bp" onclick="prev()">&#9664;</div>
+      <div class="nav-ct" id="ct"></div>
+      <div class="nav-btn" id="bn" onclick="next()">&#9654;</div>
+    </div>
+    <div class="nav-ct-mobile" id="ctm"></div>
+  </div>
+
+  <script>
+    const I = 'images/';
+    const pages = [
+
+      // ===== ACT I: THE STRUGGLE =====
+      { type: 'text', act: 'Act I \u2014 The Struggle', title: 'Zelda\u2019s Thread' },
+
+      { type: 'text', narr: 'Zelda had always worked with her hands.<br><br>For years, she sold her <em>hand-knitted clothing</em> at the Turkish bazaars \u2014 small, colorful pieces that people loved.<br><br>It was honest work. It covered her income. It was enough.' },
+
+      { type: 'img', src: I+'empty-bazaar.png',
+        cap: 'Then the bazaars closed. One by one, the stalls went dark. The Turkish fairs where she sold her mini knit products \u2014 <em>gone</em>.' },
+
+      { type: 'text', narr: 'Zelda was older now.<br>Fighting was harder.<br>She didn\u2019t know what to do.<br><br>The income that had sustained her \u2014 <em>vanished</em>.<br><br>She had no option.<br>She had to solve her own problem.' },
+
+      // ===== ACT II: THE DISCOVERY =====
+      { type: 'text', act: 'Act II \u2014 The Discovery', ch: 'Chapter 02', title: 'The Lightbulb' },
+
+      { type: 'img', src: I+'discovers-etsy.png',
+        cap: 'Then she found it. <em>Etsy.</em> A website where people sold handmade things to the whole world. Her eyes went wide. A lightbulb went on.' },
+
+      { type: 'text', narr: 'There was just one problem.<br><br>Zelda didn\u2019t know <em>technology</em>.<br><br>She didn\u2019t know how to build a shop online. She didn\u2019t know how to take product photos. She didn\u2019t know how to ship internationally.<br><br>But she knew something else.<br><br>She knew how to <em>not give up</em>.' },
+
+      // ===== THE NUDGING =====
+      { type: 'text', ch: 'Chapter 03', title: 'The Nudge' },
+
+      { type: 'text', narr: 'She had a son.<br>She had a daughter.<br><br>They knew technology.<br><br>So Zelda did what any Turkish mother would do.<br><br>She <em>forced them</em>.' },
+
+      { type: 'img', src: I+'nudging-daughter.png',
+        cap: 'Every single day. <em>\u201CTake pictures of this! Take pictures of this!\u201D</em> The daughter was frustrated. The nudging never stopped. Not for one day.',
+        bub: { text: 'Take pictures of this! NOW!', top: '10px', right: '10px' } },
+
+      { type: 'text', narr: 'The daughter rolled her eyes.<br>The son groaned.<br><br>But Zelda <em>did not care</em>.<br><br>She nudged them at breakfast.<br>She nudged them at dinner.<br>She nudged them before bed.<br><br>A Turkish mother\u2019s nudge is a <em>force of nature</em>.' },
+
+      { type: 'img', src: I+'bad-photos.png',
+        cap: 'The photos were terrible. Blurry. Bad angles. A sweater on a messy kitchen table. The phone couldn\u2019t find the right focus. <em>But she still tried.</em>' },
+
+      { type: 'text', narr: 'Every failed photo was followed by another attempt.<br><br>Every crooked image was followed by a straighter one.<br><br>She didn\u2019t wait for perfection.<br>She just <em>kept going</em>.' },
+
+      // ===== ACT III: THE ARMY =====
+      { type: 'text', act: 'Act III \u2014 The Army', ch: 'Chapter 04', title: 'The Knitting Circle' },
+
+      { type: 'img', src: I+'knitting-circle.png',
+        cap: 'Zelda found fellow knitters in the neighborhood. Women like her \u2014 older, skilled, and determined. They gathered in living rooms with tea and yarn. <em>A sisterhood was born.</em>' },
+
+      { type: 'img', src: I+'knitter-army.png',
+        cap: 'Together, they became an <em>army</em>. Knitting needles held like weapons. Colorful scarves hung like battle flags. They were going to conquer this thing called the internet.' },
+
+      { type: 'text', narr: 'But they needed <em>models</em>.<br><br>Who would wear their colorful hand-knitted sweaters, scarves, and vests for the Etsy photos?<br><br>They looked around the neighborhood.<br><br>They found their answer.' },
+
+      { type: 'text', ch: 'Chapter 05', title: 'The Grandpas' },
+
+      { type: 'img', src: I+'grumpy-grandpas.png',
+        cap: 'Grumpy Turkish grandpas. Mustaches. Flat caps. Tea glasses. Stern expressions. Wearing <em>absolutely fabulous</em> hand-knitted sweaters. They looked reluctant. But they looked <em>incredible</em>.' },
+
+      { type: 'text', narr: 'The grandpas grumbled.<br>The grandpas complained.<br>The grandpas posed anyway.<br><br>Because you don\u2019t say no to <em>a Turkish grandmother with knitting needles</em>.' },
+
+      { type: 'text', narr: 'And then something happened.' },
+
+      // ===== THE SALES =====
+      { type: 'text', ch: 'Chapter 06', title: 'The Notifications' },
+
+      { type: 'img', src: I+'sales-coming.png',
+        cap: 'The Etsy notifications started coming. One sale. Then another. Then <em>another</em>. Zelda sat in front of the laptop, hands on her cheeks, tears in her eyes. Her daughter stood behind her, equally shocked.' },
+
+      { type: 'text', narr: 'The colorful knitwear \u2014<br>worn by grumpy grandpas<br>who somehow looked <em>amazing</em> \u2014<br><br>was selling.<br><br>To people in America.<br>In Germany.<br>In Japan.<br><br>The whole world wanted<br>Zelda\u2019s thread.' },
+
+      // ===== ACT IV: THE RISE =====
+      { type: 'text', act: 'Act IV \u2014 The Rise', ch: 'Chapter 07', title: 'The New Tools' },
+
+      { type: 'img', src: I+'ai-designs.png',
+        cap: 'Then they discovered <em>AI</em>. Tools that could generate new knitting patterns, suggest color combinations, and help with product descriptions. Zelda\u2019s traditional craft met cutting-edge technology.' },
+
+      { type: 'text', narr: 'A woman who couldn\u2019t build a website<br>was now using <em>artificial intelligence</em><br>to design knitwear.<br><br>Because Zelda never asked<br><em>\u201CCan I do this?\u201D</em><br><br>She only asked<br><em>\u201CHow do I do this?\u201D</em>' },
+
+      { type: 'text', ch: 'Chapter 08', title: 'The Silver Lining' },
+
+      { type: 'img', src: I+'zelda-triumphant.png',
+        cap: 'Zelda. A fighter. A struggler. <em>A winner.</em> Knitting needles crossed like swords. The power of a Turkish woman who refused to quit.' },
+
+      { type: 'text', narr: 'She started with nothing.<br>An empty bazaar stall.<br>No income. No technology.<br>No idea how to move forward.<br><br>She ended with an <em>international business</em>,<br>a neighborhood of fellow warriors,<br>a squad of reluctant grandpa models,<br>and a daughter who finally stopped<br>rolling her eyes.' },
+
+      { type: 'text', narr: 'Well. <em>Mostly</em> stopped.' },
+
+      // ===== ENDING =====
+      { type: 'ending' }
+    ];
+
+    let cur = 0;
+
+    function startBook() {
+      document.getElementById('cover').style.display = 'none';
+      document.getElementById('reader').classList.add('on');
+      cur = 0;
+      render();
+    }
+
+    function render() {
+      const el = document.getElementById('page');
+      const d = pages[cur];
+      let html = '';
+
+      if (d.type === 'img') {
+        html += '<div class="pg-img">';
+        html += `<img src="${d.src}" alt="">`;
+        if (d.bub) {
+          const s = Object.entries(d.bub).filter(([k])=>k!=='text').map(([k,v])=>`${k}:${v}`).join(';');
+          html += `<div class="pg-bub" style="${s}">${d.bub.text}</div>`;
+        }
+        html += '</div>';
+        if (d.cap) html += `<div class="pg-cap">${d.cap}</div>`;
+      }
+
+      else if (d.type === 'text') {
+        html += '<div class="pg-text">';
+        if (d.act) html += `<div class="pg-act">${d.act}</div>`;
+        if (d.ch) html += `<div class="pg-ch">${d.ch}</div>`;
+        if (d.title) html += `<div class="pg-title">${d.title}</div>`;
+        if (d.date) html += `<div class="pg-date">${d.date}</div>`;
+        if (d.narr) html += `<div class="pg-narr">${d.narr}</div>`;
+        if (d.quote) {
+          html += '<div class="pg-quote">';
+          html += `<div class="pg-quote-text">${d.quote.text}</div>`;
+          if (d.quote.attr) html += `<div class="pg-quote-attr">${d.quote.attr}</div>`;
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+
+      else if (d.type === 'ending') {
+        html += '<div class="pg-ending">';
+        html += '<div class="end-rule"></div>';
+        html += '<div class="end-body">The bazaars may close.<br>The world may change.<br>Technology may seem impossible.<br><br>But a Turkish mother with <em>thread in her hands</em><br>and <em>fire in her heart</em><br>will always find a way.<br><br>This is Zelda\u2019s story.<br>This is the story of <em>every woman</em><br>who was told it was too late<br>and proved them wrong.</div>';
+        html += '<div class="end-kanji">\u7D42</div>';
+        html += '<div class="end-attr">A true story<br>Zelda\u2019s Thread</div>';
+        html += '</div>';
+      }
+
+      el.innerHTML = html;
+      updateNav();
+    }
+
+    function next() {
+      if (cur >= pages.length - 1) return;
+      cur++;
+      turn();
+    }
+
+    function prev() {
+      if (cur <= 0) return;
+      cur--;
+      turn();
+    }
+
+    function turn() {
+      const el = document.getElementById('page');
+      el.classList.add('turning');
+      setTimeout(() => { render(); el.classList.remove('turning'); }, 150);
+    }
+
+    function updateNav() {
+      const label = `${cur + 1} / ${pages.length}`;
+      document.getElementById('ct').textContent = label;
+      document.getElementById('ctm').textContent = label;
+      document.getElementById('bp').className = 'nav-btn' + (cur === 0 ? ' off' : '');
+      document.getElementById('bn').className = 'nav-btn' + (cur === pages.length - 1 ? ' off' : '');
+    }
+
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('cover').style.display !== 'none') {
+        if (e.key === 'Enter' || e.key === ' ') startBook();
+        return;
+      }
+      if (e.key === 'ArrowRight' || e.key === ' ') next();
+      if (e.key === 'ArrowLeft') prev();
+    });
+
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const d = e.changedTouches[0].clientX - tx;
+      if (Math.abs(d) > 50) { d < 0 ? next() : prev(); }
+    }, { passive: true });
+  </script>
+
+</body>
+</html>

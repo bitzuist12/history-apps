@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>He Who Enlightens — A Manga</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      color: #ccc;
+      font-family: 'Inter', sans-serif;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .cover {
+      height: 100vh;
+      height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .cover-bg {
+      position: absolute;
+      inset: 0;
+      background: url('images/hcm-portrait.png') center/cover;
+      opacity: 0.12;
+      filter: contrast(1.4) brightness(0.3);
+    }
+
+    .cover-inner {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 0 24px;
+    }
+
+    .cover-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 64px;
+      font-weight: 900;
+      letter-spacing: 12px;
+      color: #e0ddd6;
+    }
+
+    .cover-title {
+      font-size: 13px;
+      letter-spacing: 10px;
+      text-transform: uppercase;
+      color: #555;
+      margin: 8px 0 6px;
+    }
+
+    .cover-sub {
+      font-size: 11px;
+      color: #333;
+      line-height: 1.7;
+      max-width: 360px;
+      margin: 0 auto 36px;
+      font-style: italic;
+    }
+
+    .cover-btn {
+      border: 1px solid #333;
+      background: transparent;
+      color: #888;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      padding: 14px 40px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .cover-btn:hover { background: #e0ddd6; color: #000; }
+
+    .cover-hint {
+      position: absolute;
+      bottom: 16px;
+      font-size: 9px;
+      color: #1a1a1a;
+      letter-spacing: 2px;
+    }
+
+    .reader {
+      display: none;
+      height: 100vh;
+      height: 100dvh;
+      position: relative;
+    }
+
+    .reader.on {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page-frame {
+      width: 92vw;
+      max-width: 520px;
+      height: 90vh;
+      height: 90dvh;
+      max-height: 860px;
+      background: #0a0a0a;
+      border: 1px solid #151515;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: opacity 0.15s ease;
+    }
+
+    .page-frame.turning { opacity: 0; }
+
+    .pg-img {
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: #080808;
+      min-height: 0;
+    }
+
+    .pg-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.05);
+    }
+
+    .pg-bub {
+      position: absolute;
+      background: #e8e6df;
+      color: #111;
+      border-radius: 14px;
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      max-width: 200px;
+      line-height: 1.4;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.6);
+    }
+
+    .pg-bub::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 16px;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #e8e6df;
+    }
+
+    .pg-cap {
+      flex-shrink: 0;
+      padding: 14px 18px;
+      background: #0a0a0a;
+      border-top: 1px solid #151515;
+      font-size: 12.5px;
+      line-height: 1.8;
+      color: #999;
+      text-align: center;
+    }
+
+    .pg-cap em { color: #ddd; font-style: normal; font-weight: 600; }
+
+    .pg-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 28px;
+      text-align: center;
+    }
+
+    .pg-act {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #333;
+      margin-bottom: 6px;
+    }
+
+    .pg-ch {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    .pg-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: #ddd;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .pg-date {
+      font-size: 10px;
+      color: #444;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+    }
+
+    .pg-narr {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 15px;
+      line-height: 2.2;
+      color: #888;
+      max-width: 380px;
+    }
+
+    .pg-narr em { color: #ddd; font-style: normal; font-weight: 700; }
+
+    .pg-quote {
+      border-left: 2px solid #1a1a1a;
+      padding-left: 16px;
+      text-align: left;
+      max-width: 360px;
+    }
+
+    .pg-quote-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      font-style: italic;
+      color: #777;
+      line-height: 1.9;
+    }
+
+    .pg-quote-text em { color: #bbb; font-style: normal; font-weight: 600; }
+
+    .pg-quote-attr {
+      font-size: 9px;
+      color: #333;
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    /* ---- CLIMAX ---- */
+    .pg-climax {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 24px;
+      text-align: center;
+      background: radial-gradient(ellipse at center, #00100a 0%, #000 100%);
+    }
+
+    .climax-line {
+      font-size: 9px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: #0a2018;
+      margin-bottom: 20px;
+    }
+
+    .climax-quote {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 17px;
+      line-height: 2.2;
+      color: #6eb88a;
+      max-width: 360px;
+      font-weight: 700;
+    }
+
+    .climax-quote em { color: #a0e0b8; font-style: normal; }
+
+    .climax-attr {
+      font-size: 9px;
+      color: #1a3328;
+      margin-top: 20px;
+      letter-spacing: 2px;
+    }
+
+    /* ---- ENDING ---- */
+    .pg-ending {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      text-align: center;
+    }
+
+    .end-rule {
+      width: 30px;
+      height: 1px;
+      background: #1a1a1a;
+      margin-bottom: 24px;
+    }
+
+    .end-body {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      color: #555;
+      line-height: 2.2;
+    }
+
+    .end-body em { color: #888; font-style: normal; font-weight: 600; }
+
+    .end-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 28px;
+      color: #222;
+      margin-top: 30px;
+      letter-spacing: 6px;
+    }
+
+    .end-attr {
+      font-size: 9px;
+      color: #1a1a1a;
+      margin-top: 36px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      line-height: 2;
+    }
+
+    /* ---- AUDIO ---- */
+    .audio-btn {
+      position: fixed;
+      top: 12px;
+      right: 14px;
+      z-index: 100;
+      width: 28px;
+      height: 28px;
+      border: 1px solid #1a1a1a;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      color: #333;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .audio-btn:hover { border-color: #444; color: #888; }
+    .audio-btn.on { color: #666; border-color: #333; }
+
+    /* ---- NAV ---- */
+    .nav-left, .nav-right {
+      position: absolute;
+      top: 0;
+      height: 100%;
+      width: 28%;
+      z-index: 20;
+      cursor: pointer;
+    }
+
+    .nav-left { left: 0; }
+    .nav-right { right: 0; }
+
+    .nav-bar {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 30;
+      opacity: 0.4;
+      transition: opacity 0.3s;
+    }
+
+    .nav-bar:hover { opacity: 1; }
+
+    .nav-btn {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #1a1a1a;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      color: #444;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover { border-color: #444; color: #aaa; }
+    .nav-btn.off { opacity: 0.15; pointer-events: none; }
+
+    .nav-ct { font-size: 9px; color: #222; letter-spacing: 3px; }
+    .nav-ct-mobile { display: none; }
+
+    @media (max-width: 540px) {
+      .page-frame {
+        width: 100vw; max-width: 100vw;
+        height: 100vh; height: 100dvh;
+        max-height: none; border: none;
+      }
+      .pg-img img { object-fit: contain; background: #080808; }
+      .pg-cap { padding: 12px 16px; font-size: 12px; }
+      .pg-title { font-size: 21px; }
+      .pg-narr { font-size: 14px; }
+      .pg-text { padding: 28px 20px; }
+      .climax-quote { font-size: 15px; }
+      .nav-left, .nav-right { width: 50%; }
+      .nav-bar { display: none; }
+      .nav-ct-mobile {
+        display: block;
+        position: fixed;
+        bottom: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 9px; color: #222; letter-spacing: 3px; z-index: 30;
+      }
+      .cover-jp { font-size: 48px; letter-spacing: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <audio id="theme" src="images/theme.mp3" loop preload="auto"></audio>
+  <div class="audio-btn" id="audiobtn" onclick="toggleAudio()" title="Toggle music">♪</div>
+
+  <div class="cover" id="cover" onclick="startBook()">
+    <div class="cover-bg"></div>
+    <div class="cover-inner">
+      <div class="cover-jp">胡</div>
+      <div class="cover-title">He Who Enlightens</div>
+      <div class="cover-sub">A boy from a colonial village. Thirty years wandering the world. One moment in a square that changed history.</div>
+      <button class="cover-btn">Open Book</button>
+    </div>
+    <div class="cover-hint">A true story · Vietnam, 1890–1945</div>
+  </div>
+
+  <div class="reader" id="reader">
+    <div class="nav-left" onclick="prev()"></div>
+    <div class="nav-right" onclick="next()"></div>
+    <div class="page-frame" id="page"></div>
+    <div class="nav-bar">
+      <div class="nav-btn" id="bp" onclick="prev()">&#9664;</div>
+      <div class="nav-ct" id="ct"></div>
+      <div class="nav-btn" id="bn" onclick="next()">&#9654;</div>
+    </div>
+    <div class="nav-ct-mobile" id="ctm"></div>
+  </div>
+
+  <script>
+    const I = 'images/';
+    const pages = [
+
+      // ===== ACT I: THE VILLAGE =====
+      { type: 'text', act: 'Act I \u2014 The Village', title: 'Nguyen Tat Thanh', date: 'Nghe An Province, Vietnam · 1890' },
+
+      { type: 'text', narr: 'His father was a Confucian scholar \u2014<br>a man of books, of moral suasion,<br>of a civilization a thousand years old.<br><br>His son was born into a world<br>where <em>none of that mattered anymore</em>.<br><br>The French had arrived.' },
+
+      { type: 'img', src: I+'colonial-village.png',
+        cap: 'Central Vietnam under French rule. <em>Tax collectors. Forced labor. Humiliation.</em> A Confucian world dismantled by bureaucrats from Paris who had never read a page of Nguyen Trai.' },
+
+      { type: 'text', narr: 'His father taught him the old wisdom:<br><br><em>\u201CTo defeat the enemy,<br>you must first understand him.\u201D</em><br><br>The boy took this literally.<br><br>He would go and find the enemy.<br>He would learn everything.<br>He would come back.<br><br>He just didn\u2019t know it would take <em>thirty years</em>.' },
+
+      // ===== ACT II: THE SHIP =====
+      { type: 'text', act: 'Act II \u2014 The Ship', ch: 'Chapter 02', title: 'Kitchen Boy', date: 'Saigon Port · 1911' },
+
+      { type: 'img', src: I+'leaving-ship.png',
+        cap: 'At 21, Nguyen Tat Thanh walked onto a French ocean liner and took a job as a <em>kitchen hand</em>. He looked back at the coast of Vietnam. He would not see it again for thirty years.' },
+
+      { type: 'text', narr: 'He scrubbed pots.<br>He peeled vegetables.<br>He crossed the Indian Ocean,<br>rounded Africa,<br>saw London and New York<br>and the slums of every port city in the world.<br><br>He learned what <em>empire</em> looked like<br>from the inside.' },
+
+      { type: 'text', narr: 'He noticed something everywhere he went:<br><br>The colonized were not just oppressed in Vietnam.<br>They were oppressed <em>everywhere</em>.<br><br>In Africa. In India. In the American South.<br><br>The enemy was not French.<br>The enemy was a <em>system</em>.' },
+
+      // ===== ACT III: PARIS =====
+      { type: 'text', act: 'Act III \u2014 Paris', ch: 'Chapter 03', title: 'The Petition', date: 'Versailles · 1919' },
+
+      { type: 'img', src: I+'paris-petition.png',
+        cap: 'The Paris Peace Conference. World leaders remaking the globe. <em>Nguyen Ai Quoc</em> \u2014 now his revolutionary name \u2014 showed up in a rented suit with a petition demanding Vietnamese self-determination.' },
+
+      { type: 'text', narr: 'He stood outside the conference halls.<br><br>Woodrow Wilson had promised<br>\u201Cself-determination for all peoples.\u201D<br>Ho Chi Minh believed him.<br><br>He tried to hand his petition to every delegation.<br><br><em>Nobody took it.</em><br><br>But the act made him famous<br>in Vietnamese exile circles.<br>And someone else was watching.' },
+
+      // ===== ACT IV: THE AWAKENING =====
+      { type: 'text', act: 'Act IV \u2014 The Awakening', ch: 'Chapter 04', title: 'Lenin', date: 'Paris · 1920' },
+
+      { type: 'img', src: I+'reading-lenin.png',
+        cap: 'In a small Paris apartment, he read Lenin\u2019s <em>Theses on the National and Colonial Question</em>. He reportedly wept. He had found the answer he had been searching for across every ocean.' },
+
+      { type: 'text', narr: 'He wrote later:<br><br><em>\u201CAt first, I didn\u2019t understand all of it.<br>But I kept reading. And I wept.<br>I wept with joy.<br>I had found the path.<br>I had found our liberation.\u201D</em>' },
+
+      { type: 'text', narr: 'He saw it clearly now.<br><br>The struggle for Vietnam<br>was not a local problem.<br>It was part of something <em>global</em>.<br><br>And he would dedicate his life<br>to making that argument<br>until the world listened.' },
+
+      // ===== ACT V: THE NAME =====
+      { type: 'text', act: 'Act V \u2014 The Name', ch: 'Chapter 05', title: 'Ho Chi Minh', date: 'China · 1942' },
+
+      { type: 'img', src: I+'the-name.png',
+        cap: 'Crossing into China on a secret mission, he took a new identity. <em>Ho Chi Minh</em>. Three words. One meaning: <em>He Who Enlightens</em>. He had worn many names. This was the last one.' },
+
+      { type: 'text', narr: 'By now he had been:<br><br>A kitchen worker.<br>A photographer\u2019s assistant.<br>A pastry chef in London.<br>A Comintern agent in Moscow.<br>A prisoner in Hong Kong.<br>A fugitive in China.<br><br>He had been jailed.<br>He had been sentenced to death in absentia.<br>He had been written off as dead.<br><br><em>He kept going.</em>' },
+
+      {
+        type: 'text',
+        narr: 'He wrote a poem in his prison cell:<br><br><em>\u201CThose who walk the road know it is hard.<br>Scale one mountain and another appears.<br>But once you mount the highest peak,<br>10,000 miles appear before your eyes.\u201D</em>'
+      },
+
+      // ===== ACT VI: THE RETURN =====
+      { type: 'text', act: 'Act VI \u2014 The Return', ch: 'Chapter 06', title: 'Ba Dinh Square', date: 'Hanoi · September 2, 1945' },
+
+      { type: 'img', src: I+'ba-dinh-crowd.png',
+        cap: '<em>500,000 people</em> filled Ba Dinh Square. Japan had surrendered. The French had not yet returned. For one brief moment, Vietnam was free. And the man who had left 30 years ago as a kitchen boy walked to the microphone.' },
+
+      { type: 'text', narr: 'He was 55 years old.<br><br>Thin. Simply dressed.<br>No medals. No uniform.<br>He wore a <em>khaki suit</em> and sandals.<br><br>He looked out at half a million faces<br>and began to read.' },
+
+      // ===== CLIMAX =====
+      { type: 'climax',
+        quote: '\u201CAll men are created equal.\u201D<br><br>\u201CThey are endowed by their Creator with certain unalienable Rights \u2014 among these are Life, Liberty, and the pursuit of Happiness.\u201D<br><br><em>He was quoting Thomas Jefferson.</em><br><em>To declare Vietnamese independence.</em><br><em>To the French.</em>',
+        attr: 'Ho Chi Minh \u2014 Vietnamese Declaration of Independence, Ba Dinh Square, September 2, 1945' },
+
+      { type: 'img', src: I+'declaration.png',
+        cap: 'The crowd fell silent. Then someone started to cry. Then another. <em>500,000 people</em>, many of whom had never read Jefferson, understood exactly what was happening. The colonial age was ending. Right here. Right now.' },
+
+      { type: 'text', narr: 'He stopped mid-speech<br>and looked up from the page.<br><br><em>\u201CDo you hear me clearly?\u201D</em><br><br>Half a million voices answered.<br><br><em>\u201CYes!\u201D</em>' },
+
+      // ===== ENDING =====
+      { type: 'ending' }
+    ];
+
+    let cur = 0;
+
+    function startBook() {
+      document.getElementById('cover').style.display = 'none';
+      document.getElementById('reader').classList.add('on');
+      cur = 0;
+      render();
+    }
+
+    function render() {
+      const el = document.getElementById('page');
+      const d = pages[cur];
+      let html = '';
+
+      if (d.type === 'img') {
+        html += '<div class="pg-img">';
+        html += `<img src="${d.src}" alt="">`;
+        if (d.bub) {
+          const s = Object.entries(d.bub).filter(([k])=>k!=='text'&&k!=='cls').map(([k,v])=>`${k}:${v}`).join(';');
+          const cls = d.bub.cls ? ` ${d.bub.cls}` : '';
+          html += `<div class="pg-bub${cls}" style="${s}">${d.bub.text}</div>`;
+        }
+        html += '</div>';
+        if (d.cap) html += `<div class="pg-cap">${d.cap}</div>`;
+      }
+
+      else if (d.type === 'text') {
+        html += '<div class="pg-text">';
+        if (d.act) html += `<div class="pg-act">${d.act}</div>`;
+        if (d.ch) html += `<div class="pg-ch">${d.ch}</div>`;
+        if (d.title) html += `<div class="pg-title">${d.title}</div>`;
+        if (d.date) html += `<div class="pg-date">${d.date}</div>`;
+        if (d.narr) html += `<div class="pg-narr">${d.narr}</div>`;
+        if (d.quote) {
+          html += '<div class="pg-quote">';
+          html += `<div class="pg-quote-text">${d.quote.text}</div>`;
+          if (d.quote.attr) html += `<div class="pg-quote-attr">${d.quote.attr}</div>`;
+          html += '</div>';
+        }
+        html += '</div>';
+      }
+
+      else if (d.type === 'climax') {
+        html += '<div class="pg-climax">';
+        html += '<div class="climax-line">The Declaration &nbsp;&mdash;&nbsp; September 2, 1945</div>';
+        html += `<div class="climax-quote">${d.quote}</div>`;
+        html += `<div class="climax-attr">${d.attr}</div>`;
+        html += '</div>';
+      }
+
+      else if (d.type === 'ending') {
+        html += '<div class="pg-ending">';
+        html += '<div class="end-rule"></div>';
+        html += '<div class="end-body">He had no desire to impress with brilliance.<br>He tried to persuade in <em>simple but vivid terms</em>.<br><br>A boy from a Confucian village<br>who became a kitchen hand<br>who became a revolutionary<br>who became a president<br>who opened with Jefferson.<br><br><em>\u201CIndependence is the thing.<br>What follows will follow.<br>But independence must come first.\u201D</em></div>';
+        html += '<div class="end-kanji">\u81EA\u7531</div>';
+        html += '<div class="end-attr">A true story<br>Ho Chi Minh: A Life \u2014 William J. Duiker</div>';
+        html += '</div>';
+      }
+
+      el.innerHTML = html;
+      updateNav();
+    }
+
+    function next() {
+      if (cur >= pages.length - 1) return;
+      cur++; turn();
+    }
+
+    function prev() {
+      if (cur <= 0) return;
+      cur--; turn();
+    }
+
+    function turn() {
+      const el = document.getElementById('page');
+      el.classList.add('turning');
+      setTimeout(() => { render(); el.classList.remove('turning'); }, 150);
+    }
+
+    function updateNav() {
+      const label = `${cur + 1} / ${pages.length}`;
+      document.getElementById('ct').textContent = label;
+      document.getElementById('ctm').textContent = label;
+      document.getElementById('bp').className = 'nav-btn' + (cur === 0 ? ' off' : '');
+      document.getElementById('bn').className = 'nav-btn' + (cur === pages.length - 1 ? ' off' : '');
+    }
+
+    // ---- AUDIO ----
+    let audioOn = false;
+    const audio = document.getElementById('theme');
+    const audiobtn = document.getElementById('audiobtn');
+    audio.volume = 0.35;
+
+    function toggleAudio() {
+      if (audioOn) {
+        audio.pause(); audioOn = false;
+        audiobtn.classList.remove('on'); audiobtn.textContent = '♪';
+      } else {
+        audio.play().catch(()=>{}); audioOn = true;
+        audiobtn.classList.add('on'); audiobtn.textContent = '♫';
+      }
+    }
+
+    document.getElementById('cover').addEventListener('click', () => {
+      if (!audioOn) {
+        audio.play().catch(()=>{}); audioOn = true;
+        audiobtn.classList.add('on'); audiobtn.textContent = '♫';
+      }
+    });
+
+    document.addEventListener('keydown', e => {
+      if (document.getElementById('cover').style.display !== 'none') {
+        if (e.key === 'Enter' || e.key === ' ') startBook();
+        return;
+      }
+      if (e.key === 'ArrowRight' || e.key === ' ') next();
+      if (e.key === 'ArrowLeft') prev();
+    });
+
+    let tx = 0;
+    document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+    document.addEventListener('touchend', e => {
+      const d = e.changedTouches[0].clientX - tx;
+      if (Math.abs(d) > 50) { d < 0 ? next() : prev(); }
+    }, { passive: true });
+  </script>
+
+</body>
+</html>
